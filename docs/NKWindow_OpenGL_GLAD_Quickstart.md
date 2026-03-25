@@ -73,8 +73,8 @@ nkentseu::NkContextSetWin32PixelFormat(pfd);
 ```cpp
 nkentseu::NkWindowConfig wc{};
 wc.title = "OpenGL App";
-wc.width = 1280;
-wc.height = 720;
+wc.width = 900;
+wc.height = 600;
 nkentseu::NkContextApplyWindowHints(wc); // GLX path (Xlib/XCB)
 
 nkentseu::NkWindow window;

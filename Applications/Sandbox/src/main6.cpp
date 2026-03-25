@@ -183,7 +183,7 @@ static void DrawPlasma(NkRenderer& r, uint32 w, uint32 h,
                         float sat, float hue)
 {
     if (!w || !h) return;
-    const uint32 blk = (w*h > 1280u*720u) ? 2u : 1u;
+    const uint32 blk = (w*h > 900u*600u) ? 2u : 1u;
     for (uint32 y = 0; y < h; y += blk) {
         float fy = y/(float)h - 0.5f;
         for (uint32 x = 0; x < w; x += blk) {

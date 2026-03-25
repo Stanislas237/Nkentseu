@@ -105,8 +105,8 @@ int nkmain(const nkentseu::NkEntryState&) {
 
     NkWindowConfig windowConfig{};
     windowConfig.title = "Sandbox Context All";
-    windowConfig.width = 1280;
-    windowConfig.height = 720;
+    windowConfig.width = 900;
+    windowConfig.height = 600;
     windowConfig.resizable = true;
     NkContextApplyWindowHints(windowConfig);
 

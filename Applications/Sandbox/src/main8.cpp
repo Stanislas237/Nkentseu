@@ -435,7 +435,7 @@ static void DrawPs3Layout(
     bool connected, uint32 padIndex)
 {
     if (width == 0 || height == 0) return;
-    const float s = math::NkMin(width / 1280.0f, height / 720.0f);
+    const float s = math::NkMin(width / 900.0f, height / 600.0f);
     const float cx = width * 0.5f;
     const float cy = height * 0.54f;
 
@@ -540,8 +540,8 @@ int nkmain(const nkentseu::NkEntryState& /*state*/) {
 
     NkWindowConfig cfg;
     cfg.title = "Sandbox - Gamepad PS3 Validator";
-    cfg.width = 1280;
-    cfg.height = 720;
+    cfg.width = 900;
+    cfg.height = 600;
     cfg.centered = true;
     cfg.resizable = true;
     cfg.dropEnabled = false;

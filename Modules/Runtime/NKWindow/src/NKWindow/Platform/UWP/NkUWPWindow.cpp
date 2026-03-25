@@ -48,8 +48,8 @@ namespace nkentseu {
         }
 
         mData.mTitle = config.title;
-        mData.mWidth = config.width > 0 ? config.width : 1280u;
-        mData.mHeight = config.height > 0 ? config.height : 720u;
+        mData.mWidth = config.width > 0 ? config.width : 900u;
+        mData.mHeight = config.height > 0 ? config.height : 600u;
         mData.mVisible = config.visible;
         mData.mFullscreen = config.fullscreen;
 

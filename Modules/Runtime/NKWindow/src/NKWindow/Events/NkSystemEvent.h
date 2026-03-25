@@ -118,7 +118,7 @@ namespace nkentseu {
         int32 posX        = 0;       ///< Position X dans l'espace moniteurs virtuel
         int32 posY        = 0;       ///< Position Y dans l'espace moniteurs virtuel
         bool  isPrimary   = false;   ///< Moniteur principal ?
-        char  name[64]    = {};      ///< Nom lisible (ex: "DELL U2720Q")
+        char  name[64]    = {};      ///< Nom lisible (ex: "DELL U2600Q")
 
         NkDisplayInfo() { memory::NkMemSet(name, 0, sizeof(name)); }
     };

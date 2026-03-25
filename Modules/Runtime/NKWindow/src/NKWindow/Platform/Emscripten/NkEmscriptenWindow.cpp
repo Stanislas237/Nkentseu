@@ -376,8 +376,8 @@ namespace nkentseu {
             }
         }
 
-        const uint32 requestedWidth = config.width ? config.width : 1280u;
-        const uint32 requestedHeight = config.height ? config.height : 720u;
+        const uint32 requestedWidth = config.width ? config.width : 900u;
+        const uint32 requestedHeight = config.height ? config.height : 600u;
 
         const char* canvasSelector = NormalizeCanvasSelector(mData.mCanvasId);
         emscripten_set_canvas_element_size(canvasSelector, static_cast<int>(requestedWidth), static_cast<int>(requestedHeight));

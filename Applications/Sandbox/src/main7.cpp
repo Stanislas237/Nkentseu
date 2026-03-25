@@ -83,7 +83,7 @@ static void DrawPlasma(NkRenderer& r, uint32 w, uint32 h, float t)
 {
     if (!w || !h) return;
     if (!math::NkIsFinite(t)) t = 0.f;
-    const uint32 blk = (w*h > 1280u*720u) ? 2u : 1u;
+    const uint32 blk = (w*h > 900u*600u) ? 2u : 1u;
     for (uint32 y = 0; y < h; y += blk) {
         float fy = y/(float)h - 0.5f;
         for (uint32 x = 0; x < w; x += blk) {
@@ -168,8 +168,8 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     // 2. Fenêtre
     NkWindowConfig cfg;
     cfg.title     = "ex06 — Stress Ring Buffer + Full Gamepad";
-    cfg.width     = 1280;
-    cfg.height    = 720;
+    cfg.width     = 900;
+    cfg.height    = 600;
     cfg.centered  = true;
     cfg.resizable = true;
 
@@ -292,8 +292,8 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
         // -------------------------------------------------------------------
         renderer.BeginFrame(NkRenderer::PackColor(4, 6, 12, 255));
         const auto& fb = renderer.GetFramebufferInfo();
-        uint32 w = fb.width  ? fb.width  : 1280u;
-        uint32 h = fb.height ? fb.height : 720u;
+        uint32 w = fb.width  ? fb.width  : 900u;
+        uint32 h = fb.height ? fb.height : 600u;
         DrawPlasma(renderer, w, h, time);
 
         // Overlay "stress" — barre rouge proportionnelle aux drops estimés (inactif)

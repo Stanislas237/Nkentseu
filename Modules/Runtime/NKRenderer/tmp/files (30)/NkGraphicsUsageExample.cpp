@@ -15,8 +15,8 @@ void ExampleVulkan() {
     // a) Config de la fenêtre — inchangée
     NkWindowConfig windowConfig;
     windowConfig.title  = "NkEngine — Vulkan";
-    windowConfig.width  = 1280;
-    windowConfig.height = 720;
+    windowConfig.width  = 900;
+    windowConfig.height = 600;
 
     // b) Descripteur de contexte Vulkan
     NkContextDesc desc = NkContextDesc::MakeVulkan(

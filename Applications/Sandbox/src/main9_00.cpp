@@ -140,8 +140,8 @@ int nkmain(const nkentseu::NkEntryState&) {
     // 3) Create window and apply pre-create hints (for GLX/OpenGL paths).
     NkWindowConfig windowConfig{};
     windowConfig.title = "Sandbox main9 - NkContext";
-    windowConfig.width = 1280;
-    windowConfig.height = 720;
+    windowConfig.width = 900;
+    windowConfig.height = 600;
     windowConfig.resizable = true;
     NkContextApplyWindowHints(windowConfig);
 

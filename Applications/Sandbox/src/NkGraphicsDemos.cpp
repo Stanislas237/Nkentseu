@@ -110,7 +110,7 @@ namespace nkentseu {
 // Utilitaires communs aux démos
 // =============================================================================
 static NkWindowConfig MakeWindowConfig(const char* title,
-                                       uint32 w = 1280, uint32 h = 720) {
+                                       uint32 w = 900, uint32 h = 600) {
     NkWindowConfig cfg;
     cfg.title       = title;
     cfg.width       = w;

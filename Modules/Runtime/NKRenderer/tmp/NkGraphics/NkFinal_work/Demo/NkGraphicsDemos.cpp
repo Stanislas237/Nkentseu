@@ -157,7 +157,7 @@ namespace {
 
 static void DemoOpenGL(NkEntryState&) {
     NkWindow win;
-    win.Create("NkEngine — OpenGL: Triangle pulsant + Quad UV rotatif", 1280, 720);
+    win.Create("NkEngine — OpenGL: Triangle pulsant + Quad UV rotatif", 900, 600);
 
     auto desc = NkContextDesc::MakeOpenGL(4,3,false);
     NkIGraphicsContext* ctx = NkContextFactory::Create(win, desc);
@@ -280,7 +280,7 @@ void main(){
 // =============================================================================
 static void DemoVulkan(NkEntryState&) {
     NkWindow win;
-    win.Create("NkEngine — Vulkan: Arc-en-ciel animé", 1280, 720);
+    win.Create("NkEngine — Vulkan: Arc-en-ciel animé", 900, 600);
 
     auto desc = NkContextDesc::MakeVulkan(false);
     desc.vulkan.enableComputeQueue = true;
@@ -312,7 +312,7 @@ static void DemoVulkan(NkEntryState&) {
 #if defined(NKENTSEU_PLATFORM_WINDOWS)
 static void DemoDirectX11(NkEntryState&) {
     NkWindow win;
-    win.Create("NkEngine — DX11: Triangle + Quad + Croix HLSL", 1280, 720);
+    win.Create("NkEngine — DX11: Triangle + Quad + Croix HLSL", 900, 600);
 
     auto desc = NkContextDesc::MakeDirectX11(false);
     NkIGraphicsContext* ctx = NkContextFactory::Create(win, desc);
@@ -430,7 +430,7 @@ float4 main(float4 pos:SV_POSITION, float4 col:COLOR) : SV_TARGET {
 // =============================================================================
 static void DemoDirectX12(NkEntryState&) {
     NkWindow win;
-    win.Create("NkEngine — DX12: Rendu multi-frame", 1280, 720);
+    win.Create("NkEngine — DX12: Rendu multi-frame", 900, 600);
 
     auto desc = NkContextDesc::MakeDirectX12(false);
     desc.dx12.enableComputeQueue = true;
@@ -458,7 +458,7 @@ static void DemoDirectX12(NkEntryState&) {
 #if defined(NKENTSEU_PLATFORM_MACOS) || defined(NKENTSEU_PLATFORM_IOS)
 static void DemoMetal(NkEntryState&) {
     NkWindow win;
-    win.Create("NkEngine — Metal: Triangle + Cercle SDF", 1280, 720);
+    win.Create("NkEngine — Metal: Triangle + Cercle SDF", 900, 600);
 
     auto desc = NkContextDesc::MakeMetal();
     NkIGraphicsContext* ctx = NkContextFactory::Create(win, desc);
@@ -791,7 +791,7 @@ void main(){
 // =============================================================================
 static void DemoAutoAPI(NkEntryState&) {
     NkWindow win;
-    win.Create("NkEngine — Auto API (fallback chain)", 1280, 720);
+    win.Create("NkEngine — Auto API (fallback chain)", 900, 600);
 
     NkIGraphicsContext* ctx = NkContextFactory::CreateWithFallback(win, {
 #if defined(NKENTSEU_PLATFORM_WINDOWS)

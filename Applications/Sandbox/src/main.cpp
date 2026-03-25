@@ -60,7 +60,7 @@ namespace {
                     float t, const NkVec2f& phase, float sat)
     {
         if (!width || !height) return;
-        const uint32 blk = (width * height > 1280u * 720u) ? 2u : 1u;
+        const uint32 blk = (width * height > 900u * 600u) ? 2u : 1u;
         const float iw = 1.f / width, ih = 1.f / height;
         for (uint32 y = 0; y < height; y += blk) {
             float fy = y * ih - 0.5f;
@@ -169,7 +169,7 @@ namespace {
             bool mNeonMode = false;
             nkentseu::NkVec2f mPhaseOffset = {0.f, 0.f};
             float mSaturationBoost = 1.15f;
-            uint32 mViewportW = 1280, mViewportH = 720;
+            uint32 mViewportW = 900, mViewportH = 600;
     };
 
 } // namespace
@@ -184,8 +184,8 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     // -------------------------------------------------------------------------
     NkWindowConfig cfg;
     cfg.title       = "NkWindow Sandbox - Pattern A (Dispatcher)";
-    cfg.width       = 1280;
-    cfg.height      = 720;
+    cfg.width       = 900;
+    cfg.height      = 600;
     cfg.centered    = true;
     cfg.resizable   = true;
     cfg.dropEnabled = true;

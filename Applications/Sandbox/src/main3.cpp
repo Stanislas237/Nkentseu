@@ -109,7 +109,7 @@ private:
     bool    mNeon            = false;
     NkVec2f mPhase           = { 0.f, 0.f };
     float   mSaturation      = 1.15f;
-    uint32   mViewW = 1280, mViewH = 720;
+    uint32   mViewW = 900, mViewH = 600;
 
     // --- stats ---
     uint32 mKeyPresses    = 0;
@@ -316,7 +316,7 @@ static void DrawPlasma(NkRenderer& r, uint32 w, uint32 h,
                         float t, NkVec2f phase, float sat)
 {
     if (!w || !h) return;
-    const uint32 blk = (w * h > 1280u * 720u) ? 2u : 1u;
+    const uint32 blk = (w * h > 900u * 600u) ? 2u : 1u;
     for (uint32 y = 0; y < h; y += blk) {
         float fy = y / (float)h - 0.5f;
         for (uint32 x = 0; x < w; x += blk) {
@@ -348,8 +348,8 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     // 2. Fenêtre
     NkWindowConfig cfg;
     cfg.title       = "ex02 — Pattern A : NkEventDispatcher";
-    cfg.width       = 1280;
-    cfg.height      = 720;
+    cfg.width       = 900;
+    cfg.height      = 600;
     cfg.centered    = true;
     cfg.resizable   = true;
     cfg.dropEnabled = true;

@@ -57,7 +57,7 @@ Portée:
 | NkLinearAllocator | 100.11 | 100.00 | 0/875 |
 | NkPoolAllocator | 100.13 | 100.00 | 0/755 |
 | NkFreeListAllocator | 380.30 | 1600.00 | 0/2036 |
-| NkBuddyAllocator | 101.02 | 100.00 | 0/1280 |
+| NkBuddyAllocator | 101.02 | 100.00 | 0/900 |
 | NkVirtualAllocator | 2376.95 | 2700.00 | 0/256 |
 
 ## 5) Critères Go/No-Go

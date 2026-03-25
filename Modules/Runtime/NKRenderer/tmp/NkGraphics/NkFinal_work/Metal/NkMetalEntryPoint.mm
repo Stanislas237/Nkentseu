@@ -105,7 +105,7 @@ int nkmain(nkentseu::NkEntryState& state);
     NSLog(@"[NkMetal] GPU: %@", device.name);
 
     // Fenêtre
-    NSRect frame = NSMakeRect(100, 100, 1280, 720);
+    NSRect frame = NSMakeRect(100, 100, 900, 600);
     NSUInteger style = NSWindowStyleMaskTitled
                      | NSWindowStyleMaskClosable
                      | NSWindowStyleMaskMiniaturizable

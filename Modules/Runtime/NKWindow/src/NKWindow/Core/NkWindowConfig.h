@@ -74,8 +74,8 @@ namespace nkentseu {
 		// --- Position et taille ---
 		int32 x         = 100;
 		int32 y         = 100;
-		uint32 width     = 1280;
-		uint32 height    = 720;
+		uint32 width     = 900;
+		uint32 height    = 600;
 		uint32 minWidth  = 160;
 		uint32 minHeight = 90;
 		uint32 maxWidth  = 0xFFFF;
