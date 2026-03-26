@@ -37,4 +37,13 @@ namespace NkMath {
     void inspectFloat(float x);
     //Norme IEEE 754 : valeur = (-1)^s × 1.mantisse × 2^(exposant - 1023)
     void inspectDouble(double x);
+
+    // Variance naïve : moyenne des carrés - carré de la moyenne
+    float varianceNaive(const std::vector<float>& data);
+    // Formule de Welford
+    float varianceWelford(const std::vector<float>& data);
+
+    // Epsilon machine par boucle
+    float epsilonMachine();
+
 } // namespace NkMath

@@ -241,10 +241,19 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     // TP2 : problèmes de précision
     // 1. Tableau de 1.000.000 et somme
     std::vector<float> data(1'000'000, 0.1f);
+    
+    // 2. Somme accumulate vs Somme Kahan
     float sum1 = std::accumulate(data.begin(), data.end(), 0.0f);
     float sum2 = NkMath::kahanSum(data);
-
     logger.Info("\nSum with accumulate : {0}\nKahan sum : {1}\nReal value : 100000.0", sum1, sum2);
+
+    // 3. Variance naïve VS Variance Welford
+    std::vector<float> v = {1e8f, 1e8f, 1.0f, 2.0f};
+    logger.Info("\nVariance Naive   : {0}\nVariance de Welford : {1}", NkMath::varianceNaive(v), NkMath::varianceWelford(v));
+
+    // 4. Epsilon machine par boucle vs std::numeric_limits<float>::epsilon() 
+    logger.Info("\nEpsilon Machine (loop) : {0}\nEpsilon Machine (std)  : {1}", NkMath::epsilonMachine(), std::numeric_limits<float>::epsilon());
+
 
     while (running && window.IsOpen())
     {

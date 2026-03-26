@@ -69,3 +69,43 @@ void NkMath::inspectDouble(double x) {
         mantissa
     );
 }
+
+// Variance naïve : moyenne des carrés - carré de la moyenne
+float NkMath::varianceNaive(const std::vector<float>& data) {
+    float sum = 0.0f, sumSq = 0.0f;
+
+    for (float x : data) {
+        sum += x;
+        sumSq += x * x;
+    }
+
+    float mean = sum / data.size();
+    return (sumSq / data.size()) - (mean * mean);
+}
+// Formule de Welford
+float NkMath::varianceWelford(const std::vector<float>& data) {
+    float mean = 0.0f;
+    float M2 = 0.0f;
+    int n = 0;
+
+    for (float x : data) {
+        n++;
+        float delta = x - mean;
+        mean += delta / n;
+        float delta2 = x - mean;
+        M2 += delta * delta2;
+    }
+
+    return M2 / n;
+}
+
+// Epsilon machine par boucle
+float NkMath::epsilonMachine() {
+    float eps = 1.0f;
+
+    while ((1.0f + eps / 2.0f) > 1.0f) {
+        eps /= 2.0f;
+    }
+
+    return eps;
+}
