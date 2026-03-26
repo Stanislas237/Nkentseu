@@ -211,4 +211,45 @@ namespace NkMath {
         return Translate(t) * RotateAxis(axis, angle) * Scale(s); 
     } 
 
+    Mat4d TRS(const Vec3d& t, const Vec3d& r, const Vec3d& s){
+        Mat4d rotation = RotateAxis({0, 0, 1}, r.z) * RotateAxis({0, 1, 0}, r.y) * RotateAxis({1, 0, 0}, r.x);
+        return Translate(t) * rotation * Scale(s);
+    }
+
+    void DecomposeTRS(const Mat4d& m, Vec3d& outT, Vec3d& outR, Vec3d& outS){
+        // 1. translation
+        outT = {m(0, 3), m(1, 3), m(2, 3)};
+
+        // 2. scale = norme des colonnes
+        Vec3d col0{m(0, 0), m(1, 0), m(2, 0)};
+        Vec3d col1{m(0, 1), m(1, 1), m(2, 1)};
+        Vec3d col2{m(0, 2), m(1, 2), m(2, 2)};
+        outS = {col0.Norm(), col1.Norm(), col2.Norm()};
+
+        // 3. matrice rotation pure
+        double r00 = m(0, 0) / outS.x;
+        double r01 = m(0, 1) / outS.y;
+        double r02 = m(0, 2) / outS.z;
+
+        double r10 = m(1, 0) / outS.x;
+        double r11 = m(1, 1) / outS.y;
+        double r12 = m(1, 2) / outS.z;
+
+        double r20 = m(2, 0) / outS.x;
+        double r21 = m(2, 1) / outS.y;
+        double r22 = m(2, 2) / outS.z;
+
+        // 4. extraction Euler (XYZ)
+        outR.y = std::asin(-r20);
+
+        if(std::cos(outR.y) > 1e-6) {
+            outR.x = std::atan2(r21, r22);
+            outR.z = std::atan2(r10, r00);
+        } else {
+            // gimbal lock
+            outR.x = std::atan2(-r12, r11);
+            outR.z = 0;
+        }
+    }
+
 }

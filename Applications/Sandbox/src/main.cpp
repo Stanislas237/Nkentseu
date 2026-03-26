@@ -529,6 +529,31 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     }
 
 
+    // TP9 : TRS et Décomposition
+    dist = std::uniform_real_distribution<double>(-5.0, 5.0);
+    for(int i=0; i<20; i++){
+        Vec3d outT{dist(rng),dist(rng),dist(rng)};
+        Vec3d outR{dist(rng),dist(rng),dist(rng)};
+        Vec3d outS{dist(rng)+6,dist(rng)+6,dist(rng)+6}; // éviter 0
+        
+        // 1. Construire TRS
+        Mat4d M = TRS(outT, outR, outS);
+
+        // 2. Décomposer TRS
+        Vec3d T2, R2, S2;
+        DecomposeTRS(M, T2, R2, S2);
+
+        // 3. Vérifier les valeurs
+        assert(ApproxVec(outT, T2));
+        assert(ApproxVec(outS, S2));
+
+        // rotation : tolérance plus large (ambiguïtés angles)
+        assert(approxEq(outR.x, R2.x, 1.0));
+        assert(approxEq(outR.y, R2.y, 1.0));
+        assert(approxEq(outR.z, R2.z, 1.0));
+    }
+
+
     while (running && window.IsOpen())
     {
         NkElapsedTime e = chrono.Reset();

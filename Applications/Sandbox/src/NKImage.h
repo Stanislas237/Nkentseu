@@ -18,11 +18,11 @@ struct NkImage {
     }
 
     void SavePPM(const std::string& filename) {
-        std::ofstream f(filename);
-        f << "P3\n" << w << " " << h << "\n255\n";
-        for(int i = 0; i < w*h*3; i++) {
-            f << (int)data[i] << " ";
-        }
+        std::ofstream f(filename, std::ios::binary);
+        // Header P6
+        f << "P6\n" << w << " " << h << "\n255\n";
+        // Écriture directe des données (binaire)
+        f.write(reinterpret_cast<const char*>(data.data()), w * h * 3);
     }
 
     void DrawLine(int x0, int y0, int x1, int y1, unsigned char r = 0, unsigned char g = 0, unsigned char b = 0) {
