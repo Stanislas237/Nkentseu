@@ -1,0 +1,68 @@
+#include "Float.h"
+#include "NKLogger/NkLog.h"
+#include <bitset>
+
+// Sommation de Kahan — O(N) comme std::accumulate mais BEAUCOUP plus précis 
+double NkMath::kahanSum(const double *data, int n) {
+    double sum  = 0.0f; 
+    double comp = 0.0f;  // compensation des erreurs perdues 
+ 
+    for(int i = 0; i < n; i++) { 
+        double y = data[i] - comp;    // compenser l'erreur précédente 
+        double t = sum + y;           // t est grand, y est petit → perte de bits 
+        comp    = (t - sum) - y;     // capture les bits perdus dans y 
+        sum     = t; 
+    } 
+    return sum; 
+}
+float NkMath::kahanSum(const float *data, int n) {
+    float sum  = 0.0f; 
+    float comp = 0.0f;  // compensation des erreurs perdues 
+ 
+    for(int i = 0; i < n; i++) { 
+        float y = data[i] - comp;    // compenser l'erreur précédente 
+        float t = sum + y;           // t est grand, y est petit → perte de bits 
+        comp    = (t - sum) - y;     // capture les bits perdus dans y 
+        sum     = t; 
+    } 
+    return sum; 
+}
+
+// Inspecter un float, écrit en binaire
+// Norme IEEE 754 : valeur = (-1)^signe × 1.mantisse × 2^(exposant - 127)
+void NkMath::inspectFloat(float x) {
+    // Interpréter les bits du float comme un entier 32 bits
+    uint32_t bits;
+    std::memcpy(&bits, &x, sizeof(bits));
+    
+    // Extraire les champs
+    uint32_t sign = (bits >> 31) & 0x1;      // Le dernier bit après décalage
+    uint32_t exponent = (bits >> 23) & 0xFF; // Les 8 derniers bits après décalage
+    uint32_t mantissa = bits & 0x7FFFFF;     // Les 23 derniers bits après décalage
+    
+    // Affichage en binaire
+    logger.Info("Affichage du double {0} en format binaire :\n- Signe    : {1}\n- Exposant : {2}\n- Mantisse : {3}",
+        x,
+        sign,
+        std::bitset<8>(exponent),
+        std::bitset<23>(mantissa)
+    );
+}
+// Norme IEEE 754 : valeur = (-1)^s × 1.mantisse × 2^(exposant - 1023)
+void NkMath::inspectDouble(double x) {
+    // Interpréter les bits du double comme un entier 64 bits
+    uint64_t bits;
+    std::memcpy(&bits, &x, sizeof(bits));
+
+    uint64_t sign = (bits >> 63) & 0x1;         // Le dernier bit après décalage
+    uint64_t exponent = (bits >> 52) & 0x7FF;   // Les 11 derniers bits après décalage
+    uint64_t mantissa = bits & 0xFFFFFFFFFFFFF; // Les 52 derniers bits après décalage
+    
+    // Affichage en binaire
+    logger.Info("Affichage du double {0} en format binaire :\n- Signe    : {1}\n- Exposant : {2}\n- Mantisse : {3}",
+        x,
+        sign,
+        std::bitset<11>(exponent),
+        std::bitset<52>(mantissa)
+    );
+}

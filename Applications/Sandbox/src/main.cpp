@@ -23,6 +23,7 @@
 #include <memory>
 #include <iostream>
 #include <cstdlib>
+#include "Float.h" 
 
 #ifndef NK_SANDBOX_RENDERER_API
 #define NK_SANDBOX_RENDERER_API nkentseu::NkRendererApi::NK_SOFTWARE
@@ -226,6 +227,15 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     NkChrono chrono;
     NkElapsedTime elapsed;
 
+    // Code pour afficher les float
+    NkMath::inspectFloat(0.1f);
+    NkMath::inspectFloat(1.0f);
+    NkMath::inspectFloat(1.0f / 0.0f);
+    NkMath::inspectFloat(std::sqrt(-1.0f));
+    NkMath::inspectFloat(-0.0f);
+    NkMath::inspectFloat(0.0f);
+    NkMath::inspectFloat(std::numeric_limits<float>::min());
+
     while (running && window.IsOpen())
     {
         NkElapsedTime e = chrono.Reset();
@@ -263,7 +273,7 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
             DrawPlasma(*renderer, w, h, timeSeconds, layer.GetPhaseOffset(), layer.GetSaturation());
             renderer->EndFrame();
             renderer->Present();
-        }
+        }        
 
         // --- Cap 60 fps ---
         elapsed = chrono.Elapsed();
