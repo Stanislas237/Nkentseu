@@ -25,13 +25,13 @@ struct NkImage {
         }
     }
 
-    void DrawLine(int x0, int y0, int x1, int y1) {
+    void DrawLine(int x0, int y0, int x1, int y1, unsigned char r = 0, unsigned char g = 0, unsigned char b = 0) {
         int dx = std::abs(x1 - x0), dy = -std::abs(y1 - y0);
         int sx = x0 < x1 ? 1 : -1;
         int sy = y0 < y1 ? 1 : -1;
         int err = dx + dy;
         while(true) {
-            SetPixel(x0, y0, 0, 0, 0);
+            SetPixel(x0, y0, r, g, b);
             if(x0 == x1 && y0 == y1) break;
             int e2 = 2 * err;
             if(e2 >= dy) { err += dy; x0 += sx; }

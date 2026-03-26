@@ -27,6 +27,16 @@ namespace NkMath{
         };
     }
 
+    inline Vec3d ProjectToScreen(const Vec4d& v, int w, int h){
+        // déhomogénéisation
+        double x = v.x / v.w;
+        double y = v.y / v.w;
+        // NDC -> écran
+        int sx = int((x*0.5 + 0.5)*w);
+        int sy = int((1.0-(y*0.5+0.5))*h);
+        return {double(sx), double(sy), 0};
+    }
+
     static_assert(sizeof(Vec4d) == 32, "Vec4d must be 32 bytes");
 
 }

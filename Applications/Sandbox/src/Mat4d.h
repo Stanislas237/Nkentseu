@@ -168,6 +168,17 @@ namespace NkMath {
         V(2,3) =  Dot(f, eye); 
         return V; 
     } 
+
+    Mat4d Perspective(double fov_deg, double aspect, double nearPlane, double farPlane){
+        double f = 1.0 / std::tan(fov_deg * 0.5 * nkentseu::math::DEG_TO_RAD);
+        Mat4d P{};
+        P(0, 0) = f/aspect;
+        P(1, 1) = f;
+        P(2, 2) = (farPlane+nearPlane)/(nearPlane-farPlane);
+        P(2, 3) = (2*farPlane*nearPlane)/(nearPlane-farPlane);
+        P(3, 2) = -1.0;
+        return P;
+    }
     
     // Construire Mat4d depuis [R3×3 | t3×1] de solvePnP
     // Mat4d FromRT(const Mat3d& R, const Vec3d& t) { 

@@ -232,6 +232,8 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     NkChrono chrono;
     NkElapsedTime elapsed;
 
+    const int width = 512, height = 512;
+    NkImage img(width, height);
     float s1, s2;
     std::vector<float> v;
     Vec2d u, w, n;
@@ -452,7 +454,6 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     }
 
     // Dessin des coins dans Image
-    NkImage img(512, 512);
     for(const auto& p : proj) {
         int x = (int)p.x, y = (int)p.y;
         // petit carré pour visibilité
@@ -505,7 +506,27 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     assert(approxEq(q.z, -1.0));  // 24
 
 
-    // TP7 : Mat4d et Inverse
+    // TP8 : Rasteriseur logiciel + rotation du cube
+    Vec3d eye{0,1,3}, target{0,0,0}, up{0,1,0};
+
+    Mat4d V = LookAt(eye, target, up);
+    Mat4d P = Perspective(60.0, double(width)/height, 0.1, 100.0);
+
+    for(int frame=0; frame<10; frame++){
+        img = NkImage(width, height);
+        double angle = frame * 0.3;
+        Mat4d R = RotateAxis(up, angle);
+        std::vector<Vec3d> screen;
+
+        for(auto v : cube){
+            Vec4d p = P * (V * (R * v));     // rotation + Vue + Projection
+            screen.push_back(ProjectToScreen(p, width, height));
+        }
+
+        for(auto [i,j] : edges)
+            img.DrawLine((int)screen[i].x, (int)screen[i].y, (int)screen[j].x, (int)screen[j].y, 255);
+        img.SavePPM("frame_"+std::to_string(frame)+".ppm");
+    }
 
 
     while (running && window.IsOpen())
