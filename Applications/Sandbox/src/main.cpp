@@ -27,6 +27,7 @@
 #include <random>
 #include <cstdlib>
 #include "Vec4d.h" 
+#include "NKImage.h" 
 
 #ifndef NK_SANDBOX_RENDERER_API
 #define NK_SANDBOX_RENDERER_API nkentseu::NkRendererApi::NK_SOFTWARE
@@ -432,7 +433,44 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     assert(ApproxVec(p + r, i)); // 13
 
 
+    // TP6: Vec4d et projection perspective simple
+    std::vector<Vec4d> cube = {
+        {-0.5,-0.5,-0.5,1}, {0.5,-0.5,-0.5,1},
+        {0.5, 0.5,-0.5,1}, {-0.5, 0.5,-0.5,1},
+        {-0.5,-0.5, 0.5,1}, {0.5,-0.5, 0.5,1},
+        {0.5, 0.5, 0.5,1}, {-0.5, 0.5, 0.5,1}
+    };
+    std::vector<Vec2d> proj; // Projections dans l'espace 2D
 
+    // Position de la camera et projections
+    double z_cam = 2.0;
+    for(auto& p : cube){
+        p.z += z_cam;
+        proj.push_back(ProjectPoint(p));
+    }
+
+    // Dessin des coins dans Image
+    NkImage img(512, 512);
+    for(const auto& p : proj) {
+        int x = (int)p.x, y = (int)p.y;
+        // petit carré pour visibilité
+        for(int dx = -2; dx <= 2; dx++)
+            for(int dy = -2; dy <= 2; dy++)
+                img.SetPixel(x+dx, y+dy, 255, 0, 0);
+    }
+    
+    // Arêtes du cube (12)
+    std::vector<std::pair<int,int>> edges = {
+        {0,1},{1,2},{2,3},{3,0}, // face arrière
+        {4,5},{5,6},{6,7},{7,4}, // face avant
+        {0,4},{1,5},{2,6},{3,7}  // connexions
+    };
+
+    // Dessin dans l'image
+    for(auto [i,j] : edges)
+        img.DrawLine((int)proj[i].x, (int)proj[i].y, (int)proj[j].x, (int)proj[j].y);
+    img.SavePPM("cube.ppm");
+    
 
     while (running && window.IsOpen())
     {
