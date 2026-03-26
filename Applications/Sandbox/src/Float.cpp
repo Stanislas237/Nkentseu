@@ -1,6 +1,9 @@
 #include "Float.h"
 #include "NKLogger/NkLog.h"
+#include "NKContainers/String/NkStringUtils.h"
 #include <bitset>
+
+using namespace nkentseu::string;
 
 // Sommation de Kahan — O(N) comme std::accumulate mais BEAUCOUP plus précis 
 double NkMath::kahanSum(const double *data, int n) {
@@ -41,11 +44,11 @@ void NkMath::inspectFloat(float x) {
     uint32_t mantissa = bits & 0x7FFFFF;     // Les 23 derniers bits après décalage
     
     // Affichage en binaire
-    logger.Info("Affichage du double {0} en format binaire :\n- Signe    : {1}\n- Exposant : {2}\n- Mantisse : {3}",
+    logger.Info("Affichage du float {0} en format binaire :\n- Signe    : {1}\n- Exposant : {2}\n- Mantisse : {3}",
         x,
         sign,
-        std::bitset<8>(exponent),
-        std::bitset<23>(mantissa)
+        exponent,
+        mantissa
     );
 }
 // Norme IEEE 754 : valeur = (-1)^s × 1.mantisse × 2^(exposant - 1023)
@@ -61,8 +64,8 @@ void NkMath::inspectDouble(double x) {
     // Affichage en binaire
     logger.Info("Affichage du double {0} en format binaire :\n- Signe    : {1}\n- Exposant : {2}\n- Mantisse : {3}",
         x,
-        sign,
-        std::bitset<11>(exponent),
-        std::bitset<52>(mantissa)
+        sign,        
+        exponent,
+        mantissa
     );
 }

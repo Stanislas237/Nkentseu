@@ -168,6 +168,7 @@ private:
 int nkmain(const nkentseu::NkEntryState& /*state*/)
 {
     using namespace nkentseu;
+    using namespace NkMath;
 
     // -------------------------------------------------------------------------
     // 1. Initialisation
