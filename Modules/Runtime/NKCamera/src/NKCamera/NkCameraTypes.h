@@ -48,7 +48,7 @@ namespace nkentseu{
         NK_CAM_RES_CUSTOM = 0,
         NK_CAM_RES_QVGA,   ///<  320×240
         NK_CAM_RES_VGA,    ///<  640×480
-        NK_CAM_RES_HD,     ///<  1280×720
+        NK_CAM_RES_HD,     ///<  900×600
         NK_CAM_RES_FHD,    ///<  1920×1080
         NK_CAM_RES_4K,     ///<  3840×2160
     };
@@ -57,7 +57,7 @@ namespace nkentseu{
         switch (r) {
         case NkCameraResolution::NK_CAM_RES_QVGA: w=320;  h=240;  break;
         case NkCameraResolution::NK_CAM_RES_VGA:  w=640;  h=480;  break;
-        case NkCameraResolution::NK_CAM_RES_HD:   w=1280; h=720;  break;
+        case NkCameraResolution::NK_CAM_RES_HD:   w=900; h=600;  break;
         case NkCameraResolution::NK_CAM_RES_FHD:  w=1920; h=1080; break;
         case NkCameraResolution::NK_CAM_RES_4K:   w=3840; h=2160; break;
         default:                                  w=640;  h=480;  break;
