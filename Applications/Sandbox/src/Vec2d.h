@@ -71,13 +71,6 @@ namespace NkMath {
     
     // Opérateur externe scalaire * Vec2d 
     inline Vec2d operator*(double s, const Vec2d& v) { return v * s; } 
-
-    inline Vec2d ProjectPoint(const Vec4d& p, double fx = 500, double fy = 500, double cx = 256, double cy = 256) {
-        return {
-            fx * (p.x / p.z) + cx,
-            fy * (p.y / p.z) + cy
-        };
-    }
     
     // Garantie de layout mémoire pour glVertexAttribPointer 
     static_assert(sizeof(Vec2d) == 16, "Vec2d must be 16 bytes (2 doubles)"); 

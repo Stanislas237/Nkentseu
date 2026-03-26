@@ -20,6 +20,13 @@ namespace NkMath{
         double& operator[](int i) { assert(i<4); return (&x)[i]; } 
     }; 
 
+    inline Vec2d ProjectPoint(const Vec4d& p, double fx = 500, double fy = 500, double cx = 256, double cy = 256) {
+        return {
+            fx * (p.x / p.z) + cx,
+            fy * (p.y / p.z) + cy
+        };
+    }
+
     static_assert(sizeof(Vec4d) == 32, "Vec4d must be 32 bytes");
 
 }

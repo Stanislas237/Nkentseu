@@ -26,7 +26,7 @@
 #include <assert.h>
 #include <random>
 #include <cstdlib>
-#include "Vec4d.h" 
+#include "Mat4d.h" 
 #include "NKImage.h" 
 
 #ifndef NK_SANDBOX_RENDERER_API
@@ -236,6 +236,8 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     std::vector<float> v;
     Vec2d u, w, n;
     Vec3d i, j, k;
+    Vec4d s, q;
+    Mat4d m, r, inv;
 
     // TP1 : Implémentez la fonction inspectFloat(float x)
     inspectFloat(0.1f);
@@ -428,9 +430,9 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
 
     // 3. Project et Reject
     i = {3,4,0}, j = {1,0,0};
-    Vec3d p = Project(i, j);
-    Vec3d r = Reject(i, j);
-    assert(ApproxVec(p + r, i)); // 13
+    Vec3d prj = Project(i, j);
+    Vec3d rej = Reject(i, j);
+    assert(ApproxVec(prj + rej, i)); // 13
 
 
     // TP6: Vec4d et projection perspective simple
@@ -470,7 +472,41 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     for(auto [i,j] : edges)
         img.DrawLine((int)proj[i].x, (int)proj[i].y, (int)proj[j].x, (int)proj[j].y);
     img.SavePPM("cube.ppm");
-    
+
+
+    // TP7 : Mat4d et Inverse
+    for(int t=0;t<10;t++) {
+        for(int i=0;i<4;i++)
+            for(int j=0;j<4;j++)
+                m(i, j) = dist(rng);
+        
+        // 1. M × Identity() == M
+        r = m * Mat4d::Identity();
+        assert(ApproxMat(r, m)); // 1–10
+
+        // 2. M × M⁻¹ == Identity()
+        if(Inverse(m, inv)) // skip singulière
+            assert(ApproxMat(m * inv, Mat4d::Identity(), 1e-10f)); // 11–20
+    }
+
+    // 3. Inverse d'une matrice singulière retourne false
+    m = Mat4d::Identity();
+    // rendre singulière (ligne dupliquée)
+    for(int j=0;j<4;j++)
+        m(1, j) = m(0, j);
+    assert(!Inverse(m, inv)); // 21
+
+    // 4. RotateAxis({0,1,0}, PI/2) × {1,0,0,1} == {0,0,-1,1} 
+    r = RotateAxis({0,1,0}, PI/2);
+    s = {1,0,0,1};
+    q = r * s;
+    assert(approxEq(q.x, 0.0));   // 22
+    assert(approxEq(q.y, 0.0));   // 23
+    assert(approxEq(q.z, -1.0));  // 24
+
+
+    // TP7 : Mat4d et Inverse
+
 
     while (running && window.IsOpen())
     {
