@@ -24,6 +24,7 @@
 #include <numeric>
 #include <iostream>
 #include <assert.h>
+#include <random>
 #include <cstdlib>
 #include "Vec4d.h" 
 
@@ -233,7 +234,7 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     float s1, s2;
     std::vector<float> v;
     Vec2d u, w, n;
-    Vec3d u, w, n;
+    Vec3d i, j, k;
 
     // TP1 : Implémentez la fonction inspectFloat(float x)
     inspectFloat(0.1f);
@@ -389,21 +390,47 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
 
     // TP5 : Vec3d avec Gram-Schmidt
     // 1 & 2. Cross Product
-    Vec3d i{1,0,0}, j{0,1,0}, k{0,0,1};
-
+    i = {1,0,0}, j = {0,1,0}, k = {0,0,1};
     // règle main droite
-    assert(approxVec(i.cross(j), k));     // 1
-    assert(approxVec(j.cross(i), {0,0,-1})); // 2
-
+    assert(ApproxVec(Cross(i, j), k));               // 1
+    assert(ApproxVec(Cross(j, i), {0,0,-1}));        // 2
     // base complète
-    assert(approxVec(j.cross(k), i));     // 3
-    assert(approxVec(k.cross(i), j));     // 4
-
+    assert(ApproxVec(Cross(j, k), i));               // 3
+    assert(ApproxVec(Cross(k, i), j));               // 4
     // orthogonalité
-    Vec3d c = i.cross(j);
-    assert(approxEq(c.dot(i), 0));        // 5
-    assert(approxEq(c.dot(j), 0));        // 6
-}
+    assert(approxEq(Dot(Cross(i, j), i), 0));        // 5
+    assert(approxEq(Dot(Cross(i, j), j), 0));        // 6
+
+    // 2. Gram-Schmidt sur 10 triplets aléatoires 
+    std::mt19937 rng(42);
+    std::uniform_real_distribution<double> dist(-10.0, 10.0);
+
+    for(int t = 0; t < 10; ++t) {
+        Vec3d a{dist(rng), dist(rng), dist(rng)};
+        Vec3d b{dist(rng), dist(rng), dist(rng)};
+        Vec3d c{dist(rng), dist(rng), dist(rng)};
+
+        // Gram-Schmidt
+        Vec3d ui = a.Normalized();
+        Vec3d vi = (b - Project(b, ui)).Normalized();
+        Vec3d wi = (c - Project(c, ui) - Project(c, vi)).Normalized();
+        // normes
+        assert(approxEq(ui.Norm(), 1.0));  // 7
+        assert(approxEq(vi.Norm(), 1.0));  // 8
+        assert(approxEq(wi.Norm(), 1.0));  // 9
+
+        // orthogonalité
+        assert(approxEq(Dot(ui, vi), 0.0));  // 10
+        assert(approxEq(Dot(ui, wi), 0.0));  // 11
+        assert(approxEq(Dot(vi, wi), 0.0));  // 12
+    }
+
+    // 3. Project et Reject
+    i = {3,4,0}, j = {1,0,0};
+    Vec3d p = Project(i, j);
+    Vec3d r = Reject(i, j);
+    assert(ApproxVec(p + r, i)); // 13
+
 
 
 

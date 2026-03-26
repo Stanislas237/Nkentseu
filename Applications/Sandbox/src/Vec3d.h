@@ -78,6 +78,12 @@ namespace NkMath {
     // Opérateur externe scalaire * Vec3d 
     inline Vec3d operator*(double s, const Vec3d& v) { return v * s; } 
 
+    inline bool ApproxVec(const Vec3d& a, const Vec3d& b, double eps = kEps) {
+        return approxEq(a.x, b.x, eps) &&
+            approxEq(a.y, b.y, eps) &&
+            approxEq(a.z, b.z, eps);
+    }
+
     // Projection de a sur b : composante de a dans la direction de b 
     // proj(a,b) = b × (a·b / |b|²) 
     inline Vec3d Project(const Vec3d& a, const Vec3d& b) { 
