@@ -84,8 +84,8 @@ int main() {
     // ── 1. Fenêtre ───────────────────────────────────────────────────────────
     NkWindowConfig wcfg;
     wcfg.title  = "NkRenderer — Multi-objet Vulkan";
-    wcfg.width  = 900;
-    wcfg.height = 600;
+    wcfg.width  = 1280;
+    wcfg.height = 720;
 
     // Vulkan n'a pas besoin de PrepareWindowConfig
     NkWindow window(wcfg);

@@ -145,7 +145,7 @@ bool NkUIKitCameraBackend::StartStreaming(const NkCameraConfig& config)
 
     // Preset selon résolution
     if (config.height<=480)       p->session.sessionPreset=AVCaptureSessionPreset640x480;
-    else if (config.height<=600)  p->session.sessionPreset=AVCaptureSessionPreset900x600;
+    else if (config.height<=720)  p->session.sessionPreset=AVCaptureSessionPreset1280x720;
     else if (config.height<=1080) p->session.sessionPreset=AVCaptureSessionPreset1920x1080;
     else                          p->session.sessionPreset=AVCaptureSessionPreset3840x2160;
 

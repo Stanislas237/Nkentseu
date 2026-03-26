@@ -38,8 +38,8 @@ namespace nkentseu {
 		// --- Position et taille ---
 		NkI32 x         = 100;
 		NkI32 y         = 100;
-		NkU32 width     = 900;
-		NkU32 height    = 600;
+		NkU32 width     = 1280;
+		NkU32 height    = 720;
 		NkU32 minWidth  = 160;
 		NkU32 minHeight = 90;
 		NkU32 maxWidth  = 0xFFFF;

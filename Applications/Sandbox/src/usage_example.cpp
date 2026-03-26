@@ -12,7 +12,7 @@ void ExampleOpenGL_Win32() {
     // Le contexte OpenGL fait GetDC(hwnd) lui-même → suffisant.
 
     NkWindowConfig wcfg;
-    wcfg.title = "OpenGL Win32"; wcfg.width = 900; wcfg.height = 600;
+    wcfg.title = "OpenGL Win32"; wcfg.width = 1280; wcfg.height = 720;
 
     auto gcfg = NkGraphicsContextConfig::ForOpenGL(4, 6, /*debug=*/true);
 
@@ -53,7 +53,7 @@ void ExampleOpenGL_XLib() {
     auto gcfg = NkGraphicsContextConfig::ForOpenGL(4, 6, true);
 
     NkWindowConfig wcfg;
-    wcfg.title = "OpenGL XLib"; wcfg.width = 900; wcfg.height = 600;
+    wcfg.title = "OpenGL XLib"; wcfg.width = 1280; wcfg.height = 720;
 
     // ← ÉTAPE 1 : injecter GlxVisualId dans wcfg.surfaceHints
     //   NkWindow ne sait pas que c'est pour OpenGL.
@@ -175,7 +175,7 @@ private:
 
 void ExampleMultiRenderer() {
     auto gcfg = NkGraphicsContextConfig::ForOpenGL(4, 6);
-    NkWindowConfig wcfg; wcfg.title = "Multi-Renderer"; wcfg.width = 900;
+    NkWindowConfig wcfg; wcfg.title = "Multi-Renderer"; wcfg.width = 1280;
 
     NkGraphicsContextFactory::PrepareWindowConfig(wcfg, gcfg); // Linux: injecte GLX hint
     NkWindow window(wcfg);

@@ -55,8 +55,8 @@ namespace {
         wc.lpszClassName = kNkXboxFallbackWindowClassName;
         RegisterClassExW(&wc);
 
-        const nkentseu::NkU32 width = config.width > 0 ? config.width : 900u;
-        const nkentseu::NkU32 height = config.height > 0 ? config.height : 600u;
+        const nkentseu::NkU32 width = config.width > 0 ? config.width : 1280u;
+        const nkentseu::NkU32 height = config.height > 0 ? config.height : 720u;
         RECT rect{0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
         AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
@@ -107,8 +107,8 @@ namespace nkentseu {
 
         mConfig = config;
         mData.mTitle = config.title;
-        mData.mWidth = config.width > 0 ? config.width : 900u;
-        mData.mHeight = config.height > 0 ? config.height : 600u;
+        mData.mWidth = config.width > 0 ? config.width : 1280u;
+        mData.mHeight = config.height > 0 ? config.height : 720u;
         mData.mVisible = config.visible;
         mData.mFullscreen = config.fullscreen;
         mData.mOwnsNativeWindow = false;
