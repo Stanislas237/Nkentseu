@@ -56,8 +56,8 @@ struct SharedState {
     float  phaseX     = 0.f;
     float  phaseY     = 0.f;
     float  time       = 0.f;
-    NkU32  viewW      = 1280;
-    NkU32  viewH      = 720;
+    NkU32  viewW      = 900;
+    NkU32  viewH      = 600;
 
     // Historique drops
     NkVector<NkString> droppedFiles;
@@ -82,7 +82,7 @@ static void DrawPlasma(NkRenderer& r, NkU32 w, NkU32 h,
     if (!std::isfinite(py)) py = 0.f;
     if (!std::isfinite(sat)) sat = 1.f;
 
-    const NkU32 blk = (w*h > 1280u*720u) ? 2u : 1u;
+    const NkU32 blk = (w*h > 900u*600u) ? 2u : 1u;
     for (NkU32 y = 0; y < h; y += blk) {
         float fy = y / (float)h - 0.5f;
         for (NkU32 x = 0; x < w; x += blk) {
@@ -115,8 +115,8 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     // 2. Fenêtre
     NkWindowConfig cfg;
     cfg.title       = "ex04 — Pattern C : Callbacks permanents";
-    cfg.width       = 1280;
-    cfg.height      = 720;
+    cfg.width       = 900;
+    cfg.height      = 600;
     cfg.centered    = true;
     cfg.resizable   = true;
     cfg.dropEnabled = true;
