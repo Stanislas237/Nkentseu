@@ -23,8 +23,9 @@
 #include <memory>
 #include <numeric>
 #include <iostream>
+#include <assert.h>
 #include <cstdlib>
-#include "Float.h" 
+#include "Vec4d.h" 
 
 #ifndef NK_SANDBOX_RENDERER_API
 #define NK_SANDBOX_RENDERER_API nkentseu::NkRendererApi::NK_SOFTWARE
@@ -229,30 +230,181 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     NkChrono chrono;
     NkElapsedTime elapsed;
 
+    float s1, s2;
+    std::vector<float> v;
+    Vec2d u, w, n;
+    Vec3d u, w, n;
+
     // TP1 : Implémentez la fonction inspectFloat(float x)
-    NkMath::inspectFloat(0.1f);
-    NkMath::inspectFloat(1.0f);
-    NkMath::inspectFloat(1.0f / 0.0f);
-    NkMath::inspectFloat(std::sqrt(-1.0f));
-    NkMath::inspectFloat(-0.0f);
-    NkMath::inspectFloat(0.0f);
-    NkMath::inspectFloat(std::numeric_limits<float>::min());
+    inspectFloat(0.1f);
+    inspectFloat(1.0f);
+    inspectFloat(1.0f / 0.0f);
+    inspectFloat(std::sqrt(-1.0f));
+    inspectFloat(-0.0f);
+    inspectFloat(0.0f);
+    inspectFloat(std::numeric_limits<float>::min());
 
     // TP2 : problèmes de précision
     // 1. Tableau de 1.000.000 et somme
     std::vector<float> data(1'000'000, 0.1f);
     
     // 2. Somme accumulate vs Somme Kahan
-    float sum1 = std::accumulate(data.begin(), data.end(), 0.0f);
-    float sum2 = NkMath::kahanSum(data);
-    logger.Info("\nSum with accumulate : {0}\nKahan sum : {1}\nReal value : 100000.0", sum1, sum2);
-
+    s1 = std::accumulate(data.begin(), data.end(), 0.0f);
+    s2 = kahanSum(data);
+    logger.Info("\nSum with accumulate : {0}\nKahan sum : {1}\nReal value : 100000.0", s1, s2);
+    
     // 3. Variance naïve VS Variance Welford
-    std::vector<float> v = {1e8f, 1e8f, 1.0f, 2.0f};
-    logger.Info("\nVariance Naive   : {0}\nVariance de Welford : {1}", NkMath::varianceNaive(v), NkMath::varianceWelford(v));
+    v = std::vector<float>({1e8f, 1e8f, 1.0f, 2.0f});
+    logger.Info("\nVariance Naive   : {0}\nVariance de Welford : {1}", varianceNaive(v), varianceWelford(v));
 
     // 4. Epsilon machine par boucle vs std::numeric_limits<float>::epsilon() 
-    logger.Info("\nEpsilon Machine (loop) : {0}\nEpsilon Machine (std)  : {1}", NkMath::epsilonMachine(), std::numeric_limits<float>::epsilon());
+    logger.Info("\nEpsilon Machine (loop) : {0}\nEpsilon Machine (std)  : {1}", epsilonMachine(), std::numeric_limits<float>::epsilon());
+    
+    // TP3 : 33 tests unitaires sur Float.h    
+    // 1. isFiniteValid (5 tests)    
+    assert(!isFiniteValid(std::numeric_limits<float>::quiet_NaN())); // 1
+    assert(!isFiniteValid(std::numeric_limits<float>::infinity()));  // 2
+    assert(!isFiniteValid(-std::numeric_limits<float>::infinity())); // 3
+    assert(isFiniteValid(0.0f));                                     // 4
+    assert(isFiniteValid(1.0f));                                     // 5
+
+    // 2. nearlyZero (8 tests)
+    assert(nearlyZero(0.0f, 1e-6f));     // 6
+    assert(nearlyZero(1e-7f, 1e-6f));    // 7
+    assert(!nearlyZero(1e-5f, 1e-6f));   // 8
+
+    assert(nearlyZero(-1e-7f, 1e-6f));   // 9
+    assert(!nearlyZero(-1e-5f, 1e-6f));  // 10
+
+    assert(nearlyZero(1e-3f, 1e-2f));    // 11
+    assert(!nearlyZero(1e-2f, 1e-3f));   // 12
+
+    assert(nearlyZero(5e-8f, 1e-7f));    // 13
+
+    // 3. approxEq (10 tests)
+    assert(approxEq(1.0f, 1.0f, 1e-6f));           // 14
+    assert(approxEq(1.0f, 1.0000001f, 1e-5f));     // 15
+    assert(!approxEq(1.0f, 1.1f, 1e-3f));          // 16
+
+    assert(approxEq(0.0f, 1e-7f, 1e-6f));          // 17
+    assert(!approxEq(0.0f, 1e-4f, 1e-6f));         // 18
+
+    assert(approxEq(-1.0f, -1.000001f, 1e-5f));    // 19
+    assert(!approxEq(-1.0f, -1.1f, 1e-2f));        // 20
+
+    assert(approxEq(1000.0f, 1000.0001f, 1e-3f));  // 21
+    assert(approxEq(1000.0f, 1001.0f, 1e-3f));     // 22
+
+    assert(approxEq(1e-7f, 2e-7f, 1e-6f));         // 23
+
+    // 4. kahanSum vs accumulate (10 tests)    
+    v = std::vector<float>(1000, 0.1f);
+    s1 = std::accumulate(v.begin(), v.end(), 0.0f);
+    s2 = kahanSum(v);
+    assert(std::fabs(s2 - 100.0f) < std::fabs(s1 - 100.0f)); // 24
+    
+    v = std::vector<float>(10000, 0.1f);
+    s1 = std::accumulate(v.begin(), v.end(), 0.0f);
+    s2 = kahanSum(v);
+    assert(std::fabs(s2 - 1000.0f) < std::fabs(s1 - 1000.0f)); // 25
+    
+    v = std::vector<float>({1e8f, 1.0f, -1e8f});
+    s1 = std::accumulate(v.begin(), v.end(), 0.0f);
+    s2 = kahanSum(v);
+    assert(std::fabs(s2 - 1.0f) <= std::fabs(s1 - 1.0f)); // 26
+
+    v = std::vector<float>({1.0f, 1e8f, -1e8f});
+    s1 = std::accumulate(v.begin(), v.end(), 0.0f);
+    s2 = kahanSum(v);
+    assert(std::fabs(s2 - 1.0f) <= std::fabs(s1 - 1.0f)); // 27
+    
+    v = std::vector<float>(100000, 0.01f);
+    s2 = kahanSum(v);
+    assert(approxEq(s2, 1000.0f, 1e-2f)); // 28
+
+    v = std::vector<float>(100000, 1e-5f);
+    s2 = kahanSum(v);
+    assert(approxEq(s2, 1.0f, 1e-3f)); // 29
+    
+    v = std::vector<float>({0.1f, 0.2f, 0.3f});
+    s2 = kahanSum(v);
+    assert(approxEq(s2, 0.6f, 1e-6f)); // 30
+
+    v = std::vector<float>(50000, 0.2f);
+    s2 = kahanSum(v);
+    assert(approxEq(s2, 10000.0f, 1e-2f)); // 31
+    
+    v = std::vector<float>({1e7f, 1.0f, 1.0f, -1e7f});
+    s2 = kahanSum(v);
+    assert(approxEq(s2, 2.0f, 1e-3f)); // 32
+
+    v = std::vector<float>(1000000, 0.1f);
+    s2 = kahanSum(v);
+    assert(approxEq(s2, 100000.0f, 1e-1f)); // 33
+
+
+    // TP4 : Vec2d complet + 20 implémentations
+    // 1. Dot product (6 tests)
+    assert(Dot({1,0}, {0,1}) == 0.0);      // 1
+    assert(Dot({1,0}, {1,0}) == 1.0);      // 2
+    assert(Dot({3,4}, {3,4}) == 25.0);     // 3
+    assert(Dot({-1,0}, {1,0}) == -1.0);    // 4
+    assert(Dot({2,3}, {4,5}) == 23.0);     // 5
+    assert(Dot({0,0}, {5,7}) == 0.0);      // 6
+
+    // 2. CROSS2D (4 tests)
+    assert(Cross2D({1,0}, {0,1}) == 1.0);   // 7
+    assert(Cross2D({0,1}, {1,0}) == -1.0);  // 8
+    assert(Cross2D({1,1}, {1,1}) == 0.0);   // 9
+    assert(Cross2D({2,0}, {0,2}) == 4.0);   // 10
+
+    // 3. NORMALISATION (4 tests)
+    w = {3,4};
+    n = w.Normalized();
+    assert(std::fabs(n.Norm() - 1.0) < kEps);   // 11
+
+    // direction conservée
+    assert(std::fabs(n.x - 0.6) < kEps);    // 12
+    assert(std::fabs(n.y - 0.8) < kEps);    // 13
+
+    // vecteur unitaire reste inchangé
+    u = {1,0};
+    u = u.Normalized();
+    assert(std::fabs(u.x - 1.0) < kEps);   // 14
+
+    // 4. OPERATOR [] (5 tests)
+    w = {10, 20};
+    assert(w[0] == 10.0);   // 15
+    assert(w[1] == 20.0);   // 16
+    w[0] = 30;
+    assert(w.x == 30.0);    // 17
+    w[1] = 40;
+    assert(w.y == 40.0);    // 18
+    u = {5, 6};
+    assert(u[0] == 5.0);    // 19
+
+    // 5. STATIC ASSERT (1 test)
+    static_assert(sizeof(Vec2d) == 16, "Vec2d must be 16 bytes"); // 20
+
+
+    // TP5 : Vec3d avec Gram-Schmidt
+    // 1 & 2. Cross Product
+    Vec3d i{1,0,0}, j{0,1,0}, k{0,0,1};
+
+    // règle main droite
+    assert(approxVec(i.cross(j), k));     // 1
+    assert(approxVec(j.cross(i), {0,0,-1})); // 2
+
+    // base complète
+    assert(approxVec(j.cross(k), i));     // 3
+    assert(approxVec(k.cross(i), j));     // 4
+
+    // orthogonalité
+    Vec3d c = i.cross(j);
+    assert(approxEq(c.dot(i), 0));        // 5
+    assert(approxEq(c.dot(j), 0));        // 6
+}
+
 
 
     while (running && window.IsOpen())

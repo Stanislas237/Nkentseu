@@ -24,8 +24,8 @@ namespace NkMath {
     // Égalité relative 
     inline bool approxEq(double a, double b, double eps = kEps) { 
         if(a == b) return true; 
-    double maxAB = std::max(std::abs(a), std::abs(b)); 
-    return std::abs(a - b) <= eps * std::max(1.0, maxAB); 
+        double maxAB = std::max(std::abs(a), std::abs(b)); 
+        return std::abs(a - b) <= eps * std::max(1.0, maxAB); 
     } 
 
     // Sommation de Kahan 
