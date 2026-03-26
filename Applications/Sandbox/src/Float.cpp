@@ -6,23 +6,23 @@
 using namespace nkentseu::string;
 
 // Sommation de Kahan — O(N) comme std::accumulate mais BEAUCOUP plus précis 
-double NkMath::kahanSum(const double *data, int n) {
-    double sum  = 0.0f; 
-    double comp = 0.0f;  // compensation des erreurs perdues 
+float NkMath::kahanSum(std::vector<double>& data) {
+    float sum  = 0.0f; 
+    float comp = 0.0f;  // compensation des erreurs perdues 
  
-    for(int i = 0; i < n; i++) { 
-        double y = data[i] - comp;    // compenser l'erreur précédente 
-        double t = sum + y;           // t est grand, y est petit → perte de bits 
+    for(int i = 0; i < data.size(); i++) { 
+        float y = data[i] - comp;    // compenser l'erreur précédente 
+        float t = sum + y;           // t est grand, y est petit → perte de bits 
         comp    = (t - sum) - y;     // capture les bits perdus dans y 
         sum     = t; 
     } 
     return sum; 
 }
-float NkMath::kahanSum(const float *data, int n) {
+float NkMath::kahanSum(std::vector<float>& data) {
     float sum  = 0.0f; 
     float comp = 0.0f;  // compensation des erreurs perdues 
  
-    for(int i = 0; i < n; i++) { 
+    for(int i = 0; i < data.size(); i++) { 
         float y = data[i] - comp;    // compenser l'erreur précédente 
         float t = sum + y;           // t est grand, y est petit → perte de bits 
         comp    = (t - sum) - y;     // capture les bits perdus dans y 

@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <cmath>
 #include <memory>
+#include <numeric>
 #include <iostream>
 #include <cstdlib>
 #include "Float.h" 
@@ -228,7 +229,7 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     NkChrono chrono;
     NkElapsedTime elapsed;
 
-    // Code pour afficher les float
+    // TP1 : Implémentez la fonction inspectFloat(float x)
     NkMath::inspectFloat(0.1f);
     NkMath::inspectFloat(1.0f);
     NkMath::inspectFloat(1.0f / 0.0f);
@@ -236,6 +237,14 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     NkMath::inspectFloat(-0.0f);
     NkMath::inspectFloat(0.0f);
     NkMath::inspectFloat(std::numeric_limits<float>::min());
+
+    // TP2 : problèmes de précision
+    // 1. Tableau de 1.000.000 et somme
+    std::vector<float> data(1'000'000, 0.1f);
+    float sum1 = std::accumulate(data.begin(), data.end(), 0.0f);
+    float sum2 = NkMath::kahanSum(data);
+
+    logger.Info("\nSum with accumulate : {0}\nKahan sum : {1}\nReal value : 100000.0", sum1, sum2);
 
     while (running && window.IsOpen())
     {

@@ -5,6 +5,7 @@
 #include <limits> 
 #include <cstdint> 
 #include <cstring> 
+#include <vector>
  
 namespace NkMath { 
  
@@ -28,8 +29,8 @@ namespace NkMath {
     } 
 
     // Sommation de Kahan 
-    double kahanSum(const double* data, int n); 
-    float kahanSum(const float* data, int n); 
+    float kahanSum(std::vector<float>& data);
+    float kahanSum(std::vector<double>& data);
 
     // Inspecter un float, écrit en binaire
     //Norme IEEE 754 : valeur = (-1)^signe × 1.mantisse × 2^(exposant - 127)
