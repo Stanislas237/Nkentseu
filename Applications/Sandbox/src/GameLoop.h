@@ -3,25 +3,29 @@
 #include "NKWindow/Core/NkWindow.h"
 #include <functional> 
 #include <chrono> 
- 
+#include <vector>
+#include <fstream>
+
 namespace NkEngine { 
- 
+    
     // Callbacks injectés par le jeu 
     struct GameLoopCallbacks { 
         std::function<void(double dt)>    onFixedUpdate;  // physique 60Hz 
         std::function<void(double alpha)> onRender;       // rendu interpolé 
         std::function<void()>             onInput;        // input poll 
     }; 
-
+    
     using namespace nkentseu;
     
     class GameLoop { 
     public: 
+        std::vector<double> dtSamples;
+
         explicit GameLoop(NkWindow& window); 
-    
+        
         // Lance la boucle — bloquant jusqu'à fermeture 
         void Run(const GameLoopCallbacks& callbacks); 
-    
+        
         // Arrête la boucle proprement 
         void Stop(); 
     

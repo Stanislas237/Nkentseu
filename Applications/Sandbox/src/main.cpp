@@ -25,6 +25,7 @@
 #include <cstdlib>
 
 #include "GameLoop.h"
+#include "ProfileZone.h"
 
 #ifndef NK_SANDBOX_RENDERER_API
 #define NK_SANDBOX_RENDERER_API nkentseu::NkRendererApi::NK_SOFTWARE
@@ -53,9 +54,9 @@ void DrawPlasma(NkRenderer& renderer, NkU32 width, NkU32 height,
     if (!width || !height) return;
     const NkU32 blk = (width * height > 900u * 600u) ? 2u : 1u;
     const float iw = 1.f / width, ih = 1.f / height;
-    for (NkU32 y = yStart; y < height/2; y += blk) {
+    for (NkU32 y = yStart; y < NkMin(yStart + NkU32(50), height); y += blk) {
         float fy = y * ih - 0.5f;
-        for (NkU32 x = xStart; x < width/2; x += blk) {
+        for (NkU32 x = xStart; x < NkMin(xStart + NkU32(50), width); x += blk) {
             float fx  = x * iw - 0.5f;
             float rd  =  NkSqrt(fx*fx + fy*fy);
             float mix = (NkSin((fx + phase.x)*13.5f + t*1.7f)
@@ -129,13 +130,15 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     GameLoopCallbacks callbacks;
     NkVec2i inputDir = {0, 0};
     NkVec2i squarePos = {0, 0};
-
-    bool running = true;
+    float prevAngle, currAngle;
+    float radius = 100.0f;
     float timeSeconds = 0.f;
     NkChrono chrono;
-    NkElapsedTime elapsed;
+
+    bool running = true;
 
     callbacks.onInput = [&]() {
+        ProfileZone z("Input");
         while (NkEvent* event = eventSystem.PollEvent())
         {   
             nkentseu::NkEventDispatcher d(event);
@@ -186,8 +189,13 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     };
 
     callbacks.onRender = [&](double dt) {
+        ProfileZone z("Render");
+        
         // --- Logique de jeu ici ---
-        (void)dt;
+        float interpAngle = prevAngle + (currAngle - prevAngle) * dt;
+        squarePos.x = 300 + cos(interpAngle) * radius;
+        squarePos.y = 200 + sin(interpAngle) * radius;
+
         if (renderer) {
             renderer->BeginFrame(NkRenderer::PackColor(8, 10, 18, 255));
             const NkFramebufferInfo& fb = renderer->GetFramebufferInfo();
@@ -200,8 +208,16 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     };
 
     callbacks.onFixedUpdate = [&](double dt) {
+        ProfileZone z("FixedUpdate");
         timeSeconds += static_cast<float>(dt);
-        squarePos += inputDir;
+        // squarePos += inputDir;
+        prevAngle = currAngle;
+        currAngle = 2.0f * timeSeconds * NK_PI_F; // 1 tour/sec
+        
+        static int counter = 0;
+        counter++;
+        if (counter % 30 == 0)
+            NkChrono::Sleep(NkDuration::FromMilliseconds(25.0f));
     };
 
     GameLoop gameloop(window);
