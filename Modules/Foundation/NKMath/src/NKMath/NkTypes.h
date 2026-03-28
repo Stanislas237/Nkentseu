@@ -70,7 +70,9 @@ namespace nkentseu {
         bool operator!=(const NkVec2i& other) const { return !(*this == other); }
 
         NkVec2i operator+(const NkVec2i& o) const { return { x + o.x, y + o.y }; }
+        NkVec2i operator+=(const NkVec2i& o) { x += o.x; y += o.y; return *this; }
         NkVec2i operator-(const NkVec2i& o) const { return { x - o.x, y - o.y }; }
+        NkVec2i operator-=(const NkVec2i& o) { x -= o.x; y -= o.y; return *this; }
     };
 
     // ---------------------------------------------------------------------------
@@ -102,6 +104,7 @@ namespace nkentseu {
 
         NkVec2f() = default;
         NkVec2f(float x, float y) : x(x), y(y) {}
+        NkVec2f(NkVec2i v) : x(static_cast<float>(v.x)), y(static_cast<float>(v.y)) {}
 
         NkVec2f operator+(const NkVec2f& o) const { return { x + o.x, y + o.y }; }
         NkVec2f operator-(const NkVec2f& o) const { return { x - o.x, y - o.y }; }

@@ -24,6 +24,8 @@
 #include <iostream>
 #include <cstdlib>
 
+#include "GameLoop.h"
+
 #ifndef NK_SANDBOX_RENDERER_API
 #define NK_SANDBOX_RENDERER_API nkentseu::NkRendererApi::NK_SOFTWARE
 #endif
@@ -46,14 +48,14 @@ NkU32 PackWaveColor(float r, float g, float b) {
 }
 
 void DrawPlasma(NkRenderer& renderer, NkU32 width, NkU32 height,
-                float t, const NkVec2f& phase, float sat)
+                float t, const NkVec2f& phase, float sat, NkU32 xStart = 0, NkU32 yStart = 0)
 {
     if (!width || !height) return;
     const NkU32 blk = (width * height > 900u * 600u) ? 2u : 1u;
     const float iw = 1.f / width, ih = 1.f / height;
-    for (NkU32 y = 0; y < height; y += blk) {
+    for (NkU32 y = yStart; y < height/2; y += blk) {
         float fy = y * ih - 0.5f;
-        for (NkU32 x = 0; x < width; x += blk) {
+        for (NkU32 x = xStart; x < width/2; x += blk) {
             float fx  = x * iw - 0.5f;
             float rd  =  NkSqrt(fx*fx + fy*fy);
             float mix = (NkSin((fx + phase.x)*13.5f + t*1.7f)
@@ -70,103 +72,12 @@ void DrawPlasma(NkRenderer& renderer, NkU32 width, NkU32 height,
     }
 }
 
-// =========================================================================
-// Couche applicative — Pattern A : Dispatcher typé
-// =========================================================================
-
-class GameLayer {
-public:
-    void OnEvent(nkentseu::NkEvent* ev) {
-        nkentseu::NkEventDispatcher d(ev);
-
-        // Clavier
-        NK_DISPATCH(d, nkentseu::NkKeyPressEvent, OnKeyPress);
-
-        // Manette
-        NK_DISPATCH(d, nkentseu::NkGamepadAxisEvent, OnGamepadAxis);
-        NK_DISPATCH(d, nkentseu::NkGamepadButtonPressEvent, OnGamepadPress);
-
-        // Fenêtre
-        NK_DISPATCH(d, nkentseu::NkWindowCloseEvent, OnWindowClose);
-        NK_DISPATCH(d, nkentseu::NkWindowResizeEvent, OnWindowResize);
-    }
-
-    bool OnKeyPress(nkentseu::NkKeyPressEvent& e) {
-        switch (e.GetKey()) {
-            case nkentseu::NkKey::NK_ESCAPE:
-                mShouldClose = true;
-                return true;
-            case nkentseu::NkKey::NK_F11:
-                mFullscreen = !mFullscreen;
-                return true;
-            case nkentseu::NkKey::NK_SPACE:
-                mNeonMode = !mNeonMode;
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    bool OnGamepadAxis(nkentseu::NkGamepadAxisEvent& e) {
-        float v = e.GetValue();
-        switch (e.GetAxis()) {
-            case nkentseu::NkGamepadAxis::NK_GP_AXIS_LX:
-                mPhaseOffset.x += v * 0.02f;
-                return true;
-            case nkentseu::NkGamepadAxis::NK_GP_AXIS_LY:
-                mPhaseOffset.y += v * 0.02f;
-                return true;
-            case nkentseu::NkGamepadAxis::NK_GP_AXIS_RT:
-                mSaturationBoost = 1.f + ClampUnit(v) * 0.8f;
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    bool OnGamepadPress(nkentseu::NkGamepadButtonPressEvent& e) {
-        if (e.GetButton() == nkentseu::NkGamepadButton::NK_GP_SOUTH) {
-            mNeonMode = !mNeonMode;
-            nkentseu::NkGamepads().Rumble(e.GetGamepadIndex(), 0.2f, 0.5f, 0.f, 0.f, 80);
-            return true;
-        }
-        return false;
-    }
-
-    bool OnWindowClose(nkentseu::NkWindowCloseEvent& e) {
-        (void)e;
-        mShouldClose = true;
-        return true;
-    }
-
-    bool OnWindowResize(nkentseu::NkWindowResizeEvent& e) {
-        mViewportW = e.GetWidth();
-        mViewportH = e.GetHeight();
-        return false;
-    }
-
-    NkVec2f GetPhaseOffset() const { return mPhaseOffset; }
-    float GetSaturation() const { return mSaturationBoost; }
-    bool IsNeonMode() const { return mNeonMode; }
-    bool ShouldClose() const { return mShouldClose; }
-    bool GetFullscreen() const { return mFullscreen; }
-    void SetFullscreen(bool v) { mFullscreen = v; }
-
-private:
-    bool mShouldClose = false;
-    bool mFullscreen = false;
-    bool mNeonMode = false;
-    nkentseu::NkVec2f mPhaseOffset = {0.f, 0.f};
-    float mSaturationBoost = 1.15f;
-    NkU32 mViewportW = 900, mViewportH = 600;
-};
-
 } // namespace
 
 // ============================================================================
 int nkmain(const nkentseu::NkEntryState& /*state*/)
 {
-    using namespace nkentseu;
+    using namespace NkEngine;
 
     // -------------------------------------------------------------------------
     // 1. Initialisation
@@ -212,66 +123,90 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     }
 
     // -------------------------------------------------------------------------
-    // 4. GameLayer - Pattern A (Dispatcher)
-    // -------------------------------------------------------------------------
-    GameLayer layer;
-
-    // -------------------------------------------------------------------------
     // 5. Boucle principale
     // -------------------------------------------------------------------------
     auto& eventSystem = NkEvents();
+    GameLoopCallbacks callbacks;
+    NkVec2i inputDir = {0, 0};
+    NkVec2i squarePos = {0, 0};
 
     bool running = true;
     float timeSeconds = 0.f;
     NkChrono chrono;
     NkElapsedTime elapsed;
 
-    while (running && window.IsOpen())
-    {
-        NkElapsedTime e = chrono.Reset();
-
-        // --- Pattern A : Dispatcher typé (OnEvent pour chaque event)
+    callbacks.onInput = [&]() {
         while (NkEvent* event = eventSystem.PollEvent())
-        {
-            layer.OnEvent(event);
+        {   
+            nkentseu::NkEventDispatcher d(event);
             
-            if (layer.ShouldClose() || !window.IsOpen()) {
+            d.Dispatch<nkentseu::NkKeyPressEvent>([&](nkentseu::NkKeyPressEvent& e) {
+
+                switch (e.GetKey()) {
+                    case nkentseu::NkKey::NK_UP:
+                        inputDir.y = -1;
+                        return true;
+                    case nkentseu::NkKey::NK_DOWN:
+                        inputDir.y = 1;
+                        return true;
+                    case nkentseu::NkKey::NK_LEFT:
+                        inputDir.x = -1;
+                        return true;
+                    case nkentseu::NkKey::NK_RIGHT:
+                        inputDir.x = 1;
+                        return true;
+                    default:
+                        return false;
+                }
+            });
+            
+            d.Dispatch<nkentseu::NkKeyReleaseEvent>([&](nkentseu::NkKeyReleaseEvent& e) {
+
+                switch (e.GetKey()) {
+                    case nkentseu::NkKey::NK_UP:
+                    case nkentseu::NkKey::NK_DOWN:
+                        inputDir.y = 0;
+                        return true;
+                    case nkentseu::NkKey::NK_LEFT:
+                    case nkentseu::NkKey::NK_RIGHT:
+                        inputDir.x = 0;
+                        return true;
+                    default:
+                        return false;
+                }
+            });    
+                        
+            d.Dispatch<nkentseu::NkWindowCloseEvent>([&](nkentseu::NkWindowCloseEvent& e) {
+                (void)e;
                 running = false;
-                break;
-            }
+                window.IsOpen() ? window.Close() : void();
+                return true;
+            });        
         }
+    };
 
-        if (!running || !window.IsOpen())
-            break;
-
-        // Appliquer fullscreen si changé
-        if (layer.GetFullscreen() != window.GetConfig().fullscreen) {
-            window.SetFullscreen(layer.GetFullscreen());
-        }
-
-        // --- Delta-time ---
-        float dt = (float)elapsed.seconds;
-        if (dt <= 0.f || dt > 0.25f) dt = 1.f / 60.f;
-        timeSeconds += dt * (layer.IsNeonMode() ? 1.8f : 1.0f);
-
-        // --- Rendu ---
+    callbacks.onRender = [&](double dt) {
+        // --- Logique de jeu ici ---
+        (void)dt;
         if (renderer) {
             renderer->BeginFrame(NkRenderer::PackColor(8, 10, 18, 255));
             const NkFramebufferInfo& fb = renderer->GetFramebufferInfo();
             NkU32 w = fb.width  ? fb.width  : window.GetSize().x;
             NkU32 h = fb.height ? fb.height : window.GetSize().y;
-            DrawPlasma(*renderer, w, h, timeSeconds, layer.GetPhaseOffset(), layer.GetSaturation());
+            DrawPlasma(*renderer, w, h, timeSeconds, NkVec2f(0.0f, 0.0f), 1.15f, squarePos.x, squarePos.y);
             renderer->EndFrame();
             renderer->Present();
         }
+    };
 
-        // --- Cap 60 fps ---
-        elapsed = chrono.Elapsed();
-        if (elapsed.milliseconds < 16)
-            NkChrono::Sleep(16 - elapsed.milliseconds);
-        else
-            NkChrono::YieldThread();
-    }
+    callbacks.onFixedUpdate = [&](double dt) {
+        timeSeconds += static_cast<float>(dt);
+        squarePos += inputDir;
+    };
+
+    GameLoop gameloop(window);
+    gameloop.Run(callbacks);
+    gameloop.Stop();
 
     // -------------------------------------------------------------------------
     // 6. Nettoyage
