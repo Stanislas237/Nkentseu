@@ -166,14 +166,14 @@ namespace NkMath {
         return K;
     }
     
-    static Mat3d Translate(Vec2d& t){
+    static Mat3d Translate(const Vec2d& t){
         Mat3d T = Mat3d::Identity();
         T(0, 2) = t.x;
         T(1, 2) = t.y;
         return T;
     }
 
-    static Mat3d Scale(Vec2d& s){
+    static Mat3d Scale(const Vec2d& s){
         Mat3d S = Mat3d::Identity();
         S(0, 0) = s.x;
         S(1, 1) = s.y;

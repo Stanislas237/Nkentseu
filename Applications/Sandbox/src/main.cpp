@@ -27,6 +27,7 @@
 #include <random>
 #include <cstdlib>
 #include "Mat4d.h" 
+#include "Quat.h" 
 #include "NKImage.h" 
 
 #ifndef NK_SANDBOX_RENDERER_API
@@ -94,7 +95,9 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     Vec2d u, w, n;
     Vec3d i, j, k;
     Vec4d s, q;
+    Mat3d m1, m2, m3;
     Mat4d m, r, inv;
+    Quat q1, q2, q3;
 
     // --------------------------------  TP1 : Implémentez la fonction inspectFloat(float x)
     inspectFloat(0.1f);
@@ -376,7 +379,7 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     Mat4d V = LookAt(eye, target, up);
     Mat4d P = Perspective(60.0, double(width)/height, 0.1, 100.0);
 
-    for(int frame=0; frame<10; frame++){
+    for(int frame = 0; frame < 10; frame++){
         img = NkImage(width, height);
         double angle = frame * 0.3;
         Mat4d R = Mat4d::RotateAxis(up, angle);
@@ -389,14 +392,14 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
 
         for(auto [i,j] : edges)
             img.DrawLine((int)screen[i].x, (int)screen[i].y, (int)screen[j].x, (int)screen[j].y, 255);
-        img.SavePPM("frame_"+std::to_string(frame)+".ppm");
+        img.SavePPM("frame_TP8_"+std::to_string(frame)+".ppm");
     }
 
 
 
     // --------------------------------  TP9 : TRS et Décomposition
     dist = std::uniform_real_distribution<double>(-5.0, 5.0);
-    for(int i=0; i<20; i++){
+    for(int t = 0; t < 20; t++){
         Vec3d outT{dist(rng),dist(rng),dist(rng)};
         Vec3d outR{dist(rng),dist(rng),dist(rng)};
         Vec3d outS{dist(rng)+6,dist(rng)+6,dist(rng)+6}; // éviter 0
@@ -411,15 +414,94 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
         // 3. Vérifier les valeurs
         assert(ApproxVec(outT, T2));
         assert(ApproxVec(outS, S2));
-
         // rotation : tolérance plus large (ambiguïtés angles)
-        assert(approxEq(outR.x, R2.x, 5.0));
-        assert(approxEq(outR.y, R2.y, 5.0));
-        assert(approxEq(outR.z, R2.z, 5.0));
+        assert(ApproxVec(outR, R2, 5.0));
     }
 
 
      
+
+
+
+    // --------------------------------  TP10 : Quaternions complets 
+    // 1. Vérifier Rotate et FromAxis (avec Pi)
+    i = {1,0,0};
+    q1 = FromAxisAngle({0,1,0}, NK_PI_D / 2.0f);
+    j = Rotate(q1, i);
+    assert(std::fabs(j.x - 0.0) < kEps);
+    assert(std::fabs(j.y - 0.0) < kEps);
+    assert(std::fabs(j.z + 1.0) < kEps);
+
+    // 2. Aller-retour Quat => Mat3d => Quat
+    dist = std::uniform_real_distribution<double>(-1.0, 1.0);
+    for(int t = 0; t < 50; t++){
+        q1 = { dist(rng), dist(rng), dist(rng), dist(rng) };
+        q1 = q1.Normalized();
+
+        m1 = ToMat3(q1);
+        q2 = FromMat3(m1);
+        q2 = q2.Normalized();
+
+        assert(ApproxQuat(q1, q2, 1e-4f));
+    }
+
+    // 3.  Vérifiez que Quat x Quat.Inverse() = identité
+    for(int t = 0; t < 50; t++){
+        q1 = { dist(rng), dist(rng), dist(rng), dist(rng) };
+        q1 = q1.Normalized();
+        q2 = q1.Inverse();
+        q3 = q1 * q2;
+        assert(ApproxQuat(q3, Quat::Identity(), 1e-4f));
+    }
+
+
+
+
+     
+
+
+
+    // --------------------------------  TP11 : Animation SLERP
+    // 1. Animez une rotation sur 60 frames via le rasteriseur
+    q1 = FromAxisAngle({0,1,0}, 0);
+    q2 = FromAxisAngle({0,1,0}, NK_PI_D);
+
+    for(int frame = 0; frame < 60; frame++){
+        double t = frame / 59.0;
+        Quat q = Slerp(q1, q2, t);
+        Mat4d R = FromRT(ToMat3(q), {0,0,0});
+
+        img = NkImage(width, height);
+        std::vector<Vec3d> screen;
+        for(auto v : cube){
+            Vec4d p = P * (V * (R * v));     // rotation + Vue + Projection
+            screen.push_back(ProjectToScreen(p, width, height));
+        }
+
+        for(auto [i,j] : edges)
+            img.DrawLine((int)screen[i].x, (int)screen[i].y, (int)screen[j].x, (int)screen[j].y, 255);
+        img.SavePPM("Slerp__frame_TP11_"+std::to_string(frame)+".ppm");
+    }
+
+    for(int frame = 0; frame < 60; frame++){
+        double t = frame / 59.0;
+        Quat q = Lerp(q1, q2, t);
+        Mat4d R = FromRT(ToMat3(q), {0,0,0});
+
+        img = NkImage(width, height);
+        std::vector<Vec3d> screen;
+        for(auto v : cube){
+            Vec4d p = P * (V * (R * v));     // rotation + Vue + Projection
+            screen.push_back(ProjectToScreen(p, width, height));
+        }
+
+        for(auto [i,j] : edges)
+            img.DrawLine((int)screen[i].x, (int)screen[i].y, (int)screen[j].x, (int)screen[j].y, 255);
+        img.SavePPM("Lerp__frame_TP11_"+std::to_string(frame)+".ppm");
+    }
+
+
+    
     // -------------------------------------------------------------------------
     // 5. Boucle principale
     // -------------------------------------------------------------------------
