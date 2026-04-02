@@ -16,7 +16,7 @@
 
 namespace nkentseu {
 
-	enum class NkScreenOrientation : NkU32 {
+	enum class NkScreenOrientation : uint32 {
 		NK_SCREEN_ORIENTATION_AUTO = 0,
 		NK_SCREEN_ORIENTATION_PORTRAIT,
 		NK_SCREEN_ORIENTATION_LANDSCAPE,
@@ -34,16 +34,52 @@ namespace nkentseu {
 		bool preventContextMenu     = false;
 	};
 
+	// -------------------------------------------------------------------------
+	// NkNativeWindowOptions
+	// Options natives avancées (cross-backend via handles opaques).
+	//
+	// Interprétation des handles:
+	//   - Windows : externalWindowHandle/parentWindowHandle = HWND
+	//   - XLib    : externalWindowHandle/parentWindowHandle = ::Window
+	//   - XCB     : externalWindowHandle/parentWindowHandle = xcb_window_t
+	//   - Wayland : externalWindowHandle = non supporte, parentWindowHandle = xdg_toplevel*
+	//   - macOS   : externalWindowHandle/parentWindowHandle = NSWindow*
+	//   - iOS     : externalWindowHandle = UIWindow*, parentWindowHandle = UIView*
+	//   - Android : externalWindowHandle = ANativeWindow*
+	//   - Web     : externalWindowHandle = const char* (canvas selector, ex: "#canvas")
+	//   - UWP/Xbox/Noop : externalWindowHandle = handle opaque
+	//
+	// externalDisplayHandle est utilisé uniquement quand nécessaire:
+	//   - XLib : Display*
+	//   - XCB  : xcb_connection_t*
+	//   - Wayland : wl_display*
+	//   - macOS : NSScreen*
+	//   - iOS   : UIScreen* (création interne uniquement)
+	//   - Android : android_app* (optionnel)
+	//   - Web : const char* (canvas selector alternatif)
+	// -------------------------------------------------------------------------
+	struct NkNativeWindowOptions {
+		bool    useExternalWindow = false;
+		uintptr externalWindowHandle = 0;
+		uintptr externalDisplayHandle = 0;
+
+		uintptr parentWindowHandle = 0;
+		bool    utilityWindow = false;
+
+		// Win32 only: copy pixel format from this HWND before WGL context creation.
+		uintptr win32PixelFormatShareWindowHandle = 0;
+	};
+
 	struct NkWindowConfig {
 		// --- Position et taille ---
-		NkI32 x         = 100;
-		NkI32 y         = 100;
-		NkU32 width     = 900;
-		NkU32 height    = 600;
-		NkU32 minWidth  = 160;
-		NkU32 minHeight = 90;
-		NkU32 maxWidth  = 0xFFFF;
-		NkU32 maxHeight = 0xFFFF;
+		int32 x         = 100;
+		int32 y         = 100;
+		uint32 width     = 900;
+		uint32 height    = 600;
+		uint32 minWidth  = 160;
+		uint32 minHeight = 90;
+		uint32 maxWidth  = 0xFFFF;
+		uint32 maxHeight = 0xFFFF;
 
 		// --- Comportement ---
 		bool centered       = true;
@@ -64,12 +100,13 @@ namespace nkentseu {
 		bool   hasShadow   = true;
 		bool   transparent = false;
 		bool   visible     = true;
-		NkU32  bgColor     = 0x141414FF;
+		uint32  bgColor     = 0x141414FF;
 
 		// --- Identité ---
 		NkString title    = "NkWindow";
 		NkString name     = "NkApp";
 		NkString iconPath;
+		NkNativeWindowOptions native;
 
 		// --- Mobile / Safe Area ---
 		bool respectSafeArea = true;
