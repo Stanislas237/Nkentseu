@@ -361,7 +361,7 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     assert(!Inverse(m, inv)); // 21
 
     // 4. RotateAxis({0,1,0}, PI/2) × {1,0,0,1} == {0,0,-1,1} 
-    r = RotateAxis({0,1,0}, PI/2);
+    r = Mat4d::RotateAxis({0,1,0}, PI/2);
     s = {1,0,0,1};
     q = r * s;
     assert(approxEq(q.x, 0.0));   // 22
@@ -379,7 +379,7 @@ int nkmain(const nkentseu::NkEntryState& /*state*/)
     for(int frame=0; frame<10; frame++){
         img = NkImage(width, height);
         double angle = frame * 0.3;
-        Mat4d R = RotateAxis(up, angle);
+        Mat4d R = Mat4d::RotateAxis(up, angle);
         std::vector<Vec3d> screen;
 
         for(auto v : cube){
