@@ -4,7 +4,7 @@
 #include <cstdio> 
 #include "Float.h" 
  
-namespace NkMath { 
+namespace nkentseu::math { 
  
     struct Vec2d { 
         double x, y; 
@@ -77,4 +77,4 @@ namespace NkMath {
     static_assert(offsetof(Vec2d, x) == 0, "x must be first"); 
     static_assert(offsetof(Vec2d, y) == 8, "y must be at offset 8"); 
  
-} // namespace NkMath 
+} // namespace nkentseu::math 

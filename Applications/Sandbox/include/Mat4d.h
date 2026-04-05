@@ -3,7 +3,7 @@
 #include "Mat3d.h" 
 #include <array> 
  
-namespace NkMath { 
+namespace nkentseu::math { 
     
     struct Mat4d { 
         // Stockage column-major : data[col*4 + row] 

@@ -1,7 +1,7 @@
 #pragma once 
 #include "Vec3d.h"
 
-namespace NkMath{
+namespace nkentseu::math{
 
     struct Vec4d { 
         double x, y, z, w; 
