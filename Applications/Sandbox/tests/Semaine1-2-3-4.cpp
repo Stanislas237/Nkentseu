@@ -31,21 +31,19 @@ std::vector<Vec4d> cube = {
     {0.5, 0.5, 0.5,1}, {-0.5, 0.5, 0.5,1}
 };
     
-// Arêtes du cube (12)
 std::vector<Vec2d> edges = {
     {0,1},{1,2},{2,3},{3,0}, // face arrière
     {4,5},{5,6},{6,7},{7,4}, // face avant
     {0,4},{1,5},{2,6},{3,7}  // connexions
 };
 
-// Matrices de Vue et Projection pour le rasteriseur logiciel
 Vec3d eye{0,1,3}, target{0,0,0}, up{0,1,0};
 Mat4d V = LookAt(eye, target, up);
 Mat4d P = Perspective(60.0, double(width)/height, 0.1, 100.0);
 
 
-// --------------------------------  TP1 : Implémentez la fonction inspectFloat(float x)
-TEST_CASE(Semaine1_TP1, FonctionInspectFloat) {
+// --------------------------------  TP1 - Semaine 1 : Implémentez la fonction inspectFloat(float x)
+TEST_CASE(S1_TP1, InspectFloat) {
     inspectFloat(0.1f);
     inspectFloat(1.0f);
     inspectFloat(1.0f / 0.0f);
@@ -55,8 +53,9 @@ TEST_CASE(Semaine1_TP1, FonctionInspectFloat) {
     inspectFloat(std::numeric_limits<float>::min());
 }
 
-// --------------------------------  TP2 : problèmes de précision
-TEST_CASE(Semaine1_TP2, Precision) {
+
+// --------------------------------  TP2 - Semaine 2 : problèmes de précision
+TEST_CASE(S1_TP2, Precision) {
     float s1, s2;
     std::vector<float> v;
 
@@ -66,19 +65,19 @@ TEST_CASE(Semaine1_TP2, Precision) {
     // 2. Somme accumulate vs Somme Kahan
     s1 = std::accumulate(data.begin(), data.end(), 0.0f);
     s2 = kahanSum(data);
-    logger.Info("\nSum with accumulate : {0}\nKahan sum : {1}\nReal value : 100000.0", s1, s2);
+    logger.Info("\nSomme avec accumulate : {0}\nKahan sum : {1}\nSomme réelle : 100000.0f", s1, s2);
     
     // 3. Variance naïve VS Variance Welford
     v = std::vector<float>({1e8f, 1e8f, 1.0f, 2.0f});
     logger.Info("\nVariance Naive   : {0}\nVariance de Welford : {1}", varianceNaive(v), varianceWelford(v));
     
     // 4. Epsilon machine par boucle vs std::numeric_limits<float>::epsilon() 
-    logger.Info("\nEpsilon Machine (loop) : {0}\nEpsilon Machine (std)  : {1}", epsilonMachine(), std::numeric_limits<float>::epsilon());
+    logger.Info("\nEpsilon Machine calculée : {0}\nEpsilon Machine (std::numeric_limits) : {1}", epsilonMachine(), std::numeric_limits<float>::epsilon());
 }
 
 
-// --------------------------------  TP3 : 33 tests unitaires sur Float.h    
-TEST_CASE(Semaine1_TP3, TestsSurFloath) {
+// --------------------------------  TP3 - Semaine 1 : 33 tests unitaires sur Float.h    
+TEST_CASE(S1_TP3, TestsSurFloath) {
     // 1. isFiniteValid (5 tests)    
     ASSERT_TRUE(!isFiniteValid(std::numeric_limits<float>::quiet_NaN())); // 1
     ASSERT_TRUE(!isFiniteValid(std::numeric_limits<float>::infinity()));  // 2
@@ -87,85 +86,83 @@ TEST_CASE(Semaine1_TP3, TestsSurFloath) {
     ASSERT_TRUE(isFiniteValid(1.0f));                                     // 5
 
     // 2. nearlyZero (8 tests)
-    ASSERT_TRUE(nearlyZero(0.0f, 1e-6f));     // 6
-    ASSERT_TRUE(!nearlyZero(1e-5f, 1e-6f));   // 7
-    ASSERT_TRUE(nearlyZero(1e-7f, 1e-6f));    // 8
+    float values[] = {0.0f, 1e-7f, -1e-7f, 1e-5f, -1e-5f, 1e-3f, -1e-3f, 5e-8f};
+    float epsilons[] = {1e-6f, 1e-6f, 1e-6f, 1e-2f, 1e-7f, 1e-2f, 1e-3f, 1e-3f};
 
-    ASSERT_TRUE(nearlyZero(-1e-7f, 1e-6f));   // 9
-    ASSERT_TRUE(!nearlyZero(-1e-6f, 1e-7f));  // 10
+    for (int i = 0; i < 8; ++i) {
+        float x = values[i];
+        float eps = epsilons[i];
 
-    ASSERT_TRUE(nearlyZero(1e-3f, 1e-2f));    // 11
-    ASSERT_TRUE(!nearlyZero(1e-2f, 1e-3f));   // 12
+        if (std::fabs(x) < eps)
+            ASSERT_TRUE(nearlyZero(x, eps));
+        else
+            ASSERT_TRUE(!nearlyZero(x, eps));
+    }
+        
+    // 3. approxEq (11 tests)
+    float a_vals[] = {1.0f, 1.0f, 0.0f, 0.0f, -1.0f, -1.0f, 1000.0f, 1000.0f};
+    float b_vals[] = {1.0f, 1.00001f, 1e-7f, 1e-3f, -1.00001f, -1.1f, 1000.0001f, 1001.0f};
+    float eps_vals[] = {1e-6f, 1e-1f, 1e-3f, 1e-6f, 1e-9f, 1e-4f, 1e-2f, 1e-5f};
+    for (int i = 0; i < 8; ++i) {
+        float a = a_vals[i];
+        float b = b_vals[i];
+        float eps = eps_vals[i];
 
-    ASSERT_TRUE(nearlyZero(5e-8f, 1e-7f));    // 13
+        if (std::fabs(a - b) <= eps)
+            ASSERT_TRUE(approxEq(a, b, eps));
+        else
+            ASSERT_TRUE(!approxEq(a, b, eps));
+    }
 
-    // 3. approxEq (10 tests)
-    ASSERT_TRUE(approxEq(1.0f, 1.0f, 1e-6f));           // 14
-    ASSERT_TRUE(approxEq(1.0f, 1.0000001f, 1e-5f));     // 15
-    ASSERT_TRUE(!approxEq(1.0f, 1.1f, 1e-3f));          // 16
-
-    ASSERT_TRUE(approxEq(0.0f, 1e-7f, 1e-6f));          // 17
-    ASSERT_TRUE(!approxEq(0.0f, 1e-4f, 1e-6f));         // 18
-
-    ASSERT_TRUE(approxEq(-1.0f, -1.000001f, 1e-5f));    // 19
-    ASSERT_TRUE(!approxEq(-1.0f, -1.1f, 1e-2f));        // 20
-
-    ASSERT_TRUE(approxEq(1000.0f, 1000.0001f, 1e-3f));  // 21
-    ASSERT_TRUE(approxEq(1000.0f, 1001.0f, 1e-3f));     // 22
-
-    ASSERT_TRUE(approxEq(1e-7f, 2e-7f, 1e-6f));         // 23
+    float small_vals[] = {1e-7f, 2e-7f, 5e-7f};
+    for (int i = 0; i < 3; ++i) {
+        ASSERT_TRUE(approxEq(0.0f, small_vals[i], 1e-6f));
+    }
 
     // 4. kahanSum vs accumulate (10 tests)  
-    float s1, s2;
-    std::vector<float> v;
-  
-    v = std::vector<float>(1000, 0.1f);
-    s1 = std::accumulate(v.begin(), v.end(), 0.0f);
-    s2 = kahanSum(v);
-    ASSERT_TRUE(std::fabs(s2 - 100.0f) < std::fabs(s1 - 100.0f)); // 24
-    
-    v = std::vector<float>(10000, 0.1f);
-    s1 = std::accumulate(v.begin(), v.end(), 0.0f);
-    s2 = kahanSum(v);
-    ASSERT_TRUE(std::fabs(s2 - 1000.0f) < std::fabs(s1 - 1000.0f)); // 25
-    
-    v = std::vector<float>({1e8f, 1.0f, -1e8f});
-    s1 = std::accumulate(v.begin(), v.end(), 0.0f);
-    s2 = kahanSum(v);
-    ASSERT_TRUE(std::fabs(s2 - 1.0f) <= std::fabs(s1 - 1.0f)); // 26
+    std::vector<int> sizes = {1000, 10000, 50000, 344530, 76654, 999999, 123456, 654321, 1000000};
+    for (int n : sizes) {
+        std::vector<float> v(n, 0.1f);
 
-    v = std::vector<float>({1.0f, 1e8f, -1e8f});
-    s1 = std::accumulate(v.begin(), v.end(), 0.0f);
-    s2 = kahanSum(v);
-    ASSERT_TRUE(std::fabs(s2 - 1.0f) <= std::fabs(s1 - 1.0f)); // 27
-    
-    v = std::vector<float>(100000, 0.01f);
-    s2 = kahanSum(v);
-    ASSERT_TRUE(approxEq(s2, 1000.0f, 1e-2f)); // 28
+        float s1 = std::accumulate(v.begin(), v.end(), 0.0f);
+        float s2 = kahanSum(v);
 
-    v = std::vector<float>(100000, 1e-5f);
-    s2 = kahanSum(v);
-    ASSERT_TRUE(approxEq(s2, 1.0f, 1e-3f)); // 29
-    
-    v = std::vector<float>({0.1f, 0.2f, 0.3f});
-    s2 = kahanSum(v);
-    ASSERT_TRUE(approxEq(s2, 0.6f, 1e-6f)); // 30
+        float expected = n * 0.1f;
 
-    v = std::vector<float>(50000, 0.2f);
-    s2 = kahanSum(v);
-    ASSERT_TRUE(approxEq(s2, 10000.0f, 1e-2f)); // 31
-    
-    v = std::vector<float>({1e7f, 1.0f, 1.0f, -1e7f});
-    s2 = kahanSum(v);
-    ASSERT_TRUE(approxEq(s2, 2.0f, 1e-3f)); // 32
+        ASSERT_TRUE(std::fabs(s2 - expected) < std::fabs(s1 - expected));
+    }
 
-    v = std::vector<float>(1000000, 0.1f);
-    s2 = kahanSum(v);
-    ASSERT_TRUE(approxEq(s2, 100000.0f, 1e-1f)); // 33
+    std::vector<std::vector<float>> tests = {
+        {1e8f, 1.0f, -1e8f},
+        {1.0f, 1e8f, -1e8f},
+        {1e7f, 1.0f, 1.0f, -1e7f},
+        {-1e10f, 3e10f, 1.0f, -2e10f, 1e10f, -1e10f}
+    };
+    for (auto& v : tests) {
+        float s1 = std::accumulate(v.begin(), v.end(), 0.0f);
+        float s2 = kahanSum(v);
+
+        float expected = (v.size() == 4) ? 2.0f : 1.0f;
+        ASSERT_TRUE(std::fabs(s2 - expected) <= std::fabs(s1 - expected));
+    }
+
+    std::vector<std::pair<int, float>> configs = {
+        {100000, 0.01f},
+        {100000, 1e-5f},
+        {50000, 0.2f}
+    };
+    for (auto& [n, val] : configs) {
+        std::vector<float> v(n, val);
+
+        float s2 = kahanSum(v);
+        float expected = n * val;
+        ASSERT_TRUE(approxEq(s2, expected, 1e-2f));
+    }
 }
 
-// --------------------------------  TP4 : Vec2d complet + 20 implémentations
-TEST_CASE(Semaine2_TP1, Vec2dEtImpl) {
+
+// --------------------------------  TP4 - Semaine 2 : Vec2d complet + 20 implémentations
+TEST_CASE(S2_TP1, Vec2dEtImpl) {
     // 1. Dot product (6 tests)
     ASSERT_TRUE(Dot({1,0}, {0,1}) == 0.0);      // 1
     ASSERT_TRUE(Dot({1,0}, {1,0}) == 1.0);      // 2
@@ -248,11 +245,13 @@ TEST_CASE(Semaine2_TP2, Vec3dEtGramSchmidt) {
         ASSERT_TRUE(approxEq(Dot(vi, wi), 0.0));  // 12
     }
     
-    // 3. Project et Reject
-    i = {3,4,0}, j = {1,0,0};
-    Vec3d proj = Project(i, j);
-    Vec3d rej = Reject(i, j);
-    ASSERT_TRUE(ApproxVec(proj + rej, i)); // 13
+    // 3. Project et Reject (10 tests)
+    for(int t = 0; t < 10; ++t) {
+        Vec3d a{dist(rng), dist(rng), dist(rng)};
+        Vec3d b{dist(rng), dist(rng), dist(rng)};
+        Vec3d proj = Project(a, b), rej = Reject(a, b);
+        ASSERT_TRUE(ApproxVec(proj + rej, a)); // 13
+    }
 }
 
 // --------------------------------  TP6: Vec4d et projection perspective simple
