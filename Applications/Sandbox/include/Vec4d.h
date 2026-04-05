@@ -1,7 +1,7 @@
 #pragma once 
 #include "Vec3d.h"
 
-namespace NkMath{
+namespace nkentseu::math{
 
     struct Vec4d { 
         double x, y, z, w; 
@@ -38,5 +38,4 @@ namespace NkMath{
     }
 
     static_assert(sizeof(Vec4d) == 32, "Vec4d must be 32 bytes");
-
 }

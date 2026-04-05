@@ -11,7 +11,7 @@
 #include "NKLogger/NkLog.h"
 #include "NKContainers/String/NkStringUtils.h"
 
-namespace NkMath { 
+namespace nkentseu::math { 
  
     // Constantes 
     constexpr double kEps  = 1e-9;            // epsilon double pour tests 
@@ -141,4 +141,4 @@ namespace NkMath {
         return eps;
     }
 
-} // namespace NkMath
+} // namespace nkentseu::math

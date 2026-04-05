@@ -16,7 +16,7 @@
 #include "NKImage.h" 
 
 
-using namespace NkMath;
+using namespace nkentseu::math;
 
 const int width = 512, height = 512;
 NkImage img(width, height);
@@ -209,8 +209,8 @@ TEST_CASE(S2_TP1, Vec2dEtImpl) {
     static_assert(sizeof(Vec2d) == 16, "Vec2d must be 16 bytes"); // 20
 }
 
-// --------------------------------  TP5 : Vec3d avec Gram-Schmidt
-TEST_CASE(Semaine2_TP2, Vec3dEtGramSchmidt) {
+// --------------------------------  TP5 - Semaine 2 : Vec3d avec Gram-Schmidt
+TEST_CASE(S2_TP2, Vec3dEtGramSchmidt) {
     // 1 & 2. Cross Product
     Vec3d i = {1,0,0}, j = {0,1,0}, k = {0,0,1};
 
@@ -254,8 +254,8 @@ TEST_CASE(Semaine2_TP2, Vec3dEtGramSchmidt) {
     }
 }
 
-// --------------------------------  TP6: Vec4d et projection perspective simple
-TEST_CASE(Semaine2_TP3, Vec4dEtProjectionEtPerpectiveSimple) {
+// --------------------------------  TP6 - Semaine 2 : Vec4d et projection perspective simple
+TEST_CASE(S2_TP3, Vec4dEtProjectionEtPerpectiveSimple) {
     std::vector<Vec2d> proj; // Projections dans l'espace 2D
     
     // Position de la camera et projections
@@ -280,7 +280,7 @@ TEST_CASE(Semaine2_TP3, Vec4dEtProjectionEtPerpectiveSimple) {
     img.SavePPM("cube.ppm");
 }
 
-// --------------------------------  TP7 : Mat4d et Inverse
+// --------------------------------  TP7 : Semaine 3 : Mat4d et Inverse
 TEST_CASE(Semaine3_TP1, Mat4dEtInverse) {
     Mat4d m, r, inv;
 
@@ -314,7 +314,7 @@ TEST_CASE(Semaine3_TP1, Mat4dEtInverse) {
     ASSERT_TRUE(approxEq(q.z, -1.0));  // 24
 }
 
-// --------------------------------  TP8 : Rasteriseur logiciel + rotation du cube
+// --------------------------------  TP8 - Semaine 3 : Rasteriseur logiciel + rotation du cube
 TEST_CASE(Semaine3_TP2, RotationCube) {
     for(int frame = 0; frame < 10; frame++){
         img = NkImage(width, height);
@@ -334,7 +334,7 @@ TEST_CASE(Semaine3_TP2, RotationCube) {
 }
 
 
-// --------------------------------  TP9 : TRS et Décomposition
+// --------------------------------  TP9 - Semaine 3 : TRS et Décomposition
 TEST_CASE(Semaine3_TP3, TRSEtDecomposition) {
     dist = std::uniform_real_distribution<double>(-5.0, 5.0);
 
@@ -359,7 +359,7 @@ TEST_CASE(Semaine3_TP3, TRSEtDecomposition) {
 }
 
 
-// --------------------------------  TP10 : Quaternions complets 
+// --------------------------------  TP10 - Semaine 4 : Quaternions complets 
 TEST_CASE(Semaine4_TP1, Quaternions) {
     Mat3d m1, m2, m3;
     Quat q1, q2, q3;
@@ -398,7 +398,7 @@ TEST_CASE(Semaine4_TP1, Quaternions) {
 }
 
 
-// --------------------------------  TP11 : Animation SLERP
+// --------------------------------  TP11 - Semaine 4 : Animation SLERP
 TEST_CASE(Semaine4_TP2, AnimationSLERP) {
     Quat q1, q2, q3;
     
