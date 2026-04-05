@@ -10,7 +10,6 @@
 
 #include "NKLogger/NkLog.h"
 #include "NKContainers/String/NkStringUtils.h"
-#include "../include/Float.h"
 
 namespace NkMath { 
  
