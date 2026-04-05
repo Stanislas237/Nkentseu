@@ -4,7 +4,7 @@
 #include <cstdio> 
 #include "Vec2d.h" 
  
-namespace nkentseu::math { 
+namespace NkMath { 
     
     struct Vec3d { 
         double x, y, z; 
