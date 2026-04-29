@@ -11,12 +11,12 @@
 
 #include "NKLogger/NkLog.h"
 #include "NKMath/NKMath.h"
-#include "Mat4d.h" 
+#include "SVD.h"
 #include "Quat.h" 
-#include "NKImage.h" 
+#include "IntegralImage.h"
 
 
-using namespace nkentseu::math;
+using namespace NkMath;
 
 const int width = 512, height = 512;
 NkImage img(width, height);
@@ -271,7 +271,7 @@ TEST_CASE(S2_TP3, Vec4dEtProjectionEtPerpectiveSimple) {
         // petit carré pour visibilité
         for(int dx = -2; dx <= 2; dx++)
             for(int dy = -2; dy <= 2; dy++)
-                img.SetPixel(x+dx, y+dy, 255, 0, 0);
+                img.SetPixelRGBA(x + dx, y + dy, 255, 0, 0);
     }
     
     // Dessin dans l'image
@@ -281,7 +281,7 @@ TEST_CASE(S2_TP3, Vec4dEtProjectionEtPerpectiveSimple) {
 }
 
 // --------------------------------  TP7 : Semaine 3 : Mat4d et Inverse
-TEST_CASE(Semaine3_TP1, Mat4dEtInverse) {
+TEST_CASE(S3_TP1, Mat4dEtInverse) {
     Mat4d m, r, inv;
 
     for(int t=0;t<10;t++) {
@@ -315,7 +315,7 @@ TEST_CASE(Semaine3_TP1, Mat4dEtInverse) {
 }
 
 // --------------------------------  TP8 - Semaine 3 : Rasteriseur logiciel + rotation du cube
-TEST_CASE(Semaine3_TP2, RotationCube) {
+TEST_CASE(S3_TP2, RotationCube) {
     for(int frame = 0; frame < 10; frame++){
         img = NkImage(width, height);
         double angle = frame * 0.3;
@@ -335,7 +335,7 @@ TEST_CASE(Semaine3_TP2, RotationCube) {
 
 
 // --------------------------------  TP9 - Semaine 3 : TRS et Décomposition
-TEST_CASE(Semaine3_TP3, TRSEtDecomposition) {
+TEST_CASE(S3_TP3, TRSEtDecomposition) {
     dist = std::uniform_real_distribution<double>(-5.0, 5.0);
 
     for(int t = 0; t < 20; t++){
@@ -360,7 +360,7 @@ TEST_CASE(Semaine3_TP3, TRSEtDecomposition) {
 
 
 // --------------------------------  TP10 - Semaine 4 : Quaternions complets 
-TEST_CASE(Semaine4_TP1, Quaternions) {
+TEST_CASE(S4_TP1, Quaternions) {
     Mat3d m1, m2, m3;
     Quat q1, q2, q3;
 
@@ -399,7 +399,7 @@ TEST_CASE(Semaine4_TP1, Quaternions) {
 
 
 // --------------------------------  TP11 - Semaine 4 : Animation SLERP
-TEST_CASE(Semaine4_TP2, AnimationSLERP) {
+TEST_CASE(S4_TP2, AnimationSLERP) {
     Quat q1, q2, q3;
     
     // 1. Animez une rotation sur 60 frames via le rasteriseur
@@ -439,4 +439,190 @@ TEST_CASE(Semaine4_TP2, AnimationSLERP) {
             img.DrawLine((int)screen[edge.x].x, (int)screen[edge.x].y, (int)screen[edge.y].x, (int)screen[edge.y].y, 255);
         img.SavePPM("Lerp__frame_TP11_"+std::to_string(frame)+".ppm");
     }
+}
+
+
+
+// --------------------------------  TP12 - Semaine 5 : Tests SVD
+TEST_CASE(S5_TP1, TestsSVD) {
+    Mat3d A{}, Aplus{}, S{}, R{}, Iu{}, Iv{};
+    SVD3x3 s;
+    Vec3d b, x, r;
+
+    // 47. Testez svd3x3 sur 20 matrices aléatoires
+    dist = std::uniform_real_distribution<double>(-1.0, 1.0);
+
+    for(int i = 0; i < 20; i++){
+        for(int j = 0; j < 3; j++)
+            for(int k = 0; k < 3; k++)
+                A(j, k) = dist(rng);
+
+        s = svd3x3(A);
+
+        // Reconstruction
+        S(0,0) = s.sigma.x;
+        S(1,1) = s.sigma.y;
+        S(2,2) = s.sigma.z;
+
+        R = s.U * S * s.V.Transposed();
+
+        ASSERT_TRUE(ApproxMat(R, A, 1e-6));
+
+        // Orthogonalité U, V
+        Iu = s.U * s.U.Transposed();
+        Iv = s.V * s.V.Transposed();
+
+        ASSERT_TRUE(ApproxMat(Iu, Mat3d::Identity(), 1e-6));
+        ASSERT_TRUE(ApproxMat(Iv, Mat3d::Identity(), 1e-6));
+
+        // Sigma triés
+        ASSERT_TRUE(s.sigma.x >= s.sigma.y);
+        ASSERT_TRUE(s.sigma.y >= s.sigma.z);
+    }
+
+    // 48. Testez sur une matrice rang-déficiente : les dernières σ doivent être ≈ 0 
+    // rang 1 : lignes dépendantes
+    A.setRow(0, {1,2,3});
+    A.setRow(1, {2,4,6});
+    A.setRow(2, {3,6,9});
+
+    s = svd3x3(A);
+    ASSERT_TRUE(approxEq(s.sigma.z, 0.0, 1e-6));
+
+    // 49. Pseudo-inverse (3×2)
+    // système sur-déterminé Ax = b
+    A.setRow(0, {1, 2, 0});        
+    A.setRow(1, {3, 4, 0});
+    A.setRow(2, {5, 6, 0});
+    b = Vec3d(7, 8, 9);
+    s = svd3x3(A);
+    Aplus = s.pseudoInverse();
+    x = Aplus * b;
+    
+    // vérifier Ax ≈ b (moindres carrés)
+    r = A * x - b;
+    ASSERT_TRUE(approxEq(r.Norm(), 0.0, 1e-5));
+}
+
+
+
+// --------------------------------  TP13 - Semaine 5 : Résolution d'homographie
+TEST_CASE(S5_TP2, ResolutionHomographie) {
+    (void)0; // placeholder pour éviter warning "unused function"
+}
+
+
+
+
+// --------------------------------  TP14 - Semaine 6 : NkImage de base
+TEST_CASE(S6_TP1, NkImageDeBase) {
+    // 54. Génération d'une image 512x512 avec fond coloré et nouvelles formes
+
+    // fond avec variation de couleurs
+    for(int y = 0; y < height; y++){
+        for(int x = 0; x < width; x++){
+            uint8_t r = 100;
+            uint8_t g = (uint8_t)(255.0 * x / width);
+            uint8_t b = (uint8_t)(255.0 * y / height);
+
+            img.SetPixelRGBA(x,y,r,g,b);
+        }
+    }
+
+    // bande horizontale violette
+    for(int y = 300; y < 350; y++)
+        for(int x = 50; x < 450; x++)
+            img.SetPixelRGBA(x,y,180,0,180);
+
+    // ligne anti-diagonale jaune
+    for(int i = 0; i < 512; i++)
+        img.SetPixelRGBA(511 - i,i,255,255,0);
+
+    // disque centré en haut à gauche
+    int cx = 150, cy = 150, r = 60;
+    for(int y = 0; y < height; y++){
+        for(int x = 0; x < width; x++){
+            int dx = x - cx, dy = y - cy;
+            if(dx * dx + dy * dy < r * r)
+                img.SetPixelRGBA(x,y,0,200,255);
+        }
+    }
+
+    // petit carré vert en bas à droite
+    for(int y = 400; y < 460; y++)
+        for(int x = 400; x < 460; x++)
+            img.SetPixelRGBA(x,y,0,255,100);
+            
+    img.SavePPM("fade_test_image.ppm");
+}
+
+
+
+// --------------------------------  TP15 - Semaine 6 : SampleBilinear et Convolve
+TEST_CASE(S6_TP2, SampleBilinearEtConvolve) {
+    // 58. Appliquez flou Gauss 5×5 et Sobel horizontal/vertical sur une photo PPM
+    std::vector<double> gaussian5 = {
+        1, 4, 6, 4, 1,
+        4,16,24,16, 4,
+        6,24,36,24, 6,
+        4,16,24,16, 4,
+        1, 4, 6, 4, 1
+    };
+
+    for(auto& v : gaussian5) v /= 256.0;
+
+    std::vector<double> sobelX = {
+        -1,0,1,
+        -2,0,2,
+        -1,0,1
+    };
+
+    std::vector<double> sobelY = {
+        -1,-2,-1,
+        0, 0, 0,
+        1, 2, 1
+    };
+
+    img.LoadPPM("input_arUCO.ppm");
+
+    auto t0 = std::chrono::high_resolution_clock::now();
+
+    // 1. flou
+    NkImage blurred = img.Convolve(gaussian5, 5);
+
+    // 2. gradients
+    NkImage gx = blurred.Convolve(sobelX, 3);
+    NkImage gy = blurred.Convolve(sobelY, 3);
+
+    // 3. magnitude
+    NkImage edges = NkImage::CombineGradient(gx, gy);
+
+    // 4. sauvegarde
+    edges.SavePPM("convolve_test_image.ppm");
+
+    // 5. Mesurer le temps d'exécution de la convolution pour 5×5 et 3×3
+    auto t1 = std::chrono::high_resolution_clock::now();
+
+    logger.Info("Convolution 5x5 + 3x3 + magnitude took {0} ms", std::chrono::duration<double, std::milli>(t1-t0).count());
+}
+
+
+
+// --------------------------------  TP16 - Semaine 6 : Image intégrale et seuillage
+TEST_CASE(S6_TP3, ImageIntegraleEtSeuillage) {
+    // 62. AR UCO : détectez les coins via l'image intégrale + seuillage
+    NkImage img;
+    img.LoadPPM("input_arUCO.ppm");
+
+    NkImage bin = AdaptiveThreshold(img, 31, 7);
+    bin.SavePPM("adaptivethreshold_test_image.ppm");
+
+    // 63. Temps de construction de l'image intégrale
+    auto t0 = std::chrono::high_resolution_clock::now();
+
+    IntegralImage ii(img.ToGrayscale(), img.Width(), img.Height());
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+
+    logger.Info("Integral image construction took {0} ms", std::chrono::duration<double, std::milli>(t1-t0).count());
 }

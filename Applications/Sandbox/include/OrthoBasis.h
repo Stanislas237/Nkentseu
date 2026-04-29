@@ -1,7 +1,7 @@
 #pragma once 
 #include "Vec3d.h"
 
-namespace nkentseu::math { 
+namespace NkMath { 
 
     // Orthogonalisation de Gram-Schmidt 
     // Entrée : 3 vecteurs (peuvent être non orthogonaux) 

@@ -2,7 +2,7 @@
 #include "Mat3d.h" 
 #include <cmath> 
  
-namespace nkentseu::math { 
+namespace NkMath { 
     
     struct Quat { 
         double w, x, y, z;  // w = partie réelle, (x,y,z) = parties imaginaires
@@ -162,4 +162,4 @@ namespace nkentseu::math {
         return q.Normalized(); 
     }
 
-} // namespace nkentseu::math
+} // namespace NkMath
